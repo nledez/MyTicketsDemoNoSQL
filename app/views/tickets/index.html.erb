@@ -2,6 +2,8 @@
 
 <table>
   <tr>
+    <th>Name</th>
+    <th>Description</th>
     <th></th>
     <th></th>
     <th></th>
@@ -9,6 +11,8 @@
 
 <% @tickets.each do |ticket| %>
   <tr>
+    <td><%= ticket.name %></td>
+    <td><%= ticket.description %></td>
     <td><%= link_to 'Show', ticket %></td>
     <td><%= link_to 'Edit', edit_ticket_path(ticket) %></td>
     <td><%= link_to 'Destroy', ticket, confirm: 'Are you sure?', method: :delete %></td>

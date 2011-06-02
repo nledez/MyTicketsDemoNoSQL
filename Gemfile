@@ -15,7 +15,8 @@ gem 'uglifier'
 gem 'jquery-rails'
 
 # Add mongo mapper
-gem "mongo_mapper"
+gem 'mongo_mapper'
+gem 'bson_ext'
 
 # Use unicorn as the web server
 # gem 'unicorn'

@@ -1,4 +1,6 @@
 Tickets::Application.routes.draw do
+  resources :statuses
+
   resources :tickets
 
   # The priority is based upon order of creation:

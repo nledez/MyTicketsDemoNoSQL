@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/Fixtures.html
+
+one:
+  name: New
+  description: Just opened
+
+two:
+  name: Open
+  description: Acknowledged
+
+three:
+  name: Close
+  description: Realy need a description ?

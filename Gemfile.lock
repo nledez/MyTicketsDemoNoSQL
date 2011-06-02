@@ -31,6 +31,7 @@ GEM
       activesupport (= 3.1.0.rc1)
     activesupport (3.1.0.rc1)
       multi_json (~> 1.0)
+    addressable (2.2.6)
     ansi (1.2.5)
     arel (2.1.1)
     bcrypt-ruby (2.1.4)
@@ -40,14 +41,27 @@ GEM
       execjs
     coffee-script-source (1.1.1)
     diff-lcs (1.1.2)
+    em-websocket (0.2.1)
+      addressable (>= 2.1.1)
+      eventmachine (>= 0.12.9)
     erubis (2.7.0)
+    eventmachine (0.12.10)
     execjs (1.1.0)
       multi_json (~> 1.0)
+    guard (0.3.4)
+      thor (~> 0.14.6)
+    guard-livereload (0.1.11)
+      em-websocket (~> 0.2.0)
+      guard (>= 0.2.2)
+      json (~> 1.5.1)
+    guard-rspec (0.3.1)
+      guard (>= 0.2.2)
     hike (1.0.0)
     i18n (0.6.0)
     jquery-rails (1.0.9)
       railties (~> 3.0)
       thor (~> 0.14)
+    json (1.5.1)
     mail (2.3.0)
       i18n (>= 0.4.0)
       mime-types (~> 1.16)
@@ -79,6 +93,7 @@ GEM
       rake (>= 0.8.7)
       thor (~> 0.14.6)
     rake (0.9.1)
+    rb-fsevent (0.4.0)
     rspec (2.6.0)
       rspec-core (~> 2.6.0)
       rspec-expectations (~> 2.6.0)
@@ -114,8 +129,11 @@ PLATFORMS
 
 DEPENDENCIES
   coffee-script
+  guard-livereload
+  guard-rspec
   jquery-rails
   rails (= 3.1.0.rc1)
+  rb-fsevent
   rspec-rails
   sass
   sqlite3

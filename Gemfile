@@ -27,4 +27,7 @@ group :test do
   # Pretty printed test output
   gem 'turn', :require => false
   gem 'rspec-rails'
+  gem 'rb-fsevent', :require => false if RUBY_PLATFORM =~ /darwin/i
+  gem 'guard-rspec'
+  gem 'guard-livereload'
 end

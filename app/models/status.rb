@@ -1,3 +1,4 @@
 class Status < ActiveRecord::Base
-  belongs_to :tickets
+  validates_presence_of :name
+  has_many :tickets
 end

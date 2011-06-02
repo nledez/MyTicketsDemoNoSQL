@@ -12,6 +12,10 @@
   <% end %>
 
   <div class="field">
+    <%= f.label :status %><br />
+    <%= f.select :status_id, Status.all.collect { |s| [s.name, s.id]} %>
+  </div>
+  <div class="field">
     <%= f.label :name %><br />
     <%= f.text_field :name %>
   </div>

@@ -1,9 +1,11 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/Fixtures.html
 
-one:
+Breizhcamp:
   name: Breizhcamp
   description: Prepare a demo application
+  status: New
 
-two:
+NoSQL:
   name: NoSQL
   description: Read some doc about NoSQL DB :)
+  status: Open

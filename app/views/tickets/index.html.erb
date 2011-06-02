@@ -2,6 +2,7 @@
 
 <table>
   <tr>
+    <th>Status</th>
     <th>Name</th>
     <th>Description</th>
     <th></th>
@@ -11,6 +12,7 @@
 
 <% @tickets.each do |ticket| %>
   <tr>
+    <td><%= ticket.status.name %></td>
     <td><%= ticket.name %></td>
     <td><%= ticket.description %></td>
     <td><%= link_to 'Show', ticket %></td>

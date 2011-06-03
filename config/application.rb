@@ -45,5 +45,10 @@ module Tickets
 
     # Enable the asset pipeline
     config.assets.enabled = true
+    
+    config.generators do |g|
+      g.test_framework   :rspec, :fixture => true, :views => false
+      g.integration_tool :rspec
+    end
   end
 end

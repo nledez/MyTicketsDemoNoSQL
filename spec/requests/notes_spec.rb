@@ -1,11 +1,11 @@
 require 'spec_helper'
 
-describe "Tickets" do
-  describe "GET /tickets" do
+describe "Notes" do
+  describe "GET /notes" do
     it "works! (now write some real specs)" do
       pending "add some examples to (or delete) #{__FILE__}"
       # Run the generator again with the --webrat flag if you want to use webrat methods/matchers
-      get tickets_path
+      get notes_path
       response.status.should be(200)
     end
   end

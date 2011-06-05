@@ -24,4 +24,12 @@ RSpec.configure do |config|
   # examples within a transaction, remove the following line or assign false
   # instead of true.
   config.use_transactional_fixtures = true
+  
+  config.after(:each) do
+    MongoMapper.database.collections.each do |collection|
+      unless collection.name.match(/^system\./)
+        collection.remove
+      end
+    end
+  end
 end

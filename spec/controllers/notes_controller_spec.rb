@@ -24,7 +24,10 @@ describe NotesController do
   # Note. As you add validations to Note, be sure to
   # update the return value of this method accordingly.
   def valid_attributes
-    {}
+    {
+      title: "The first note",
+      body: "Contain some text"
+    }
   end
 
   describe "GET index" do

@@ -24,7 +24,15 @@ describe TicketsController do
   # Ticket. As you add validations to Ticket, be sure to
   # update the return value of this method accordingly.
   def valid_attributes
-    {}
+   status = stub_model(Status,
+      name: "New",
+      description: "Just opened"
+    )
+   {
+      name: "Breizhcamp",
+      description: "Prepare a demo application",
+      status: mock_model("Status")
+    }
   end
 
   describe "GET index" do

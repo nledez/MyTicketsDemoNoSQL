@@ -1,0 +1,2989 @@
+diff --git .rspec .rspec
+new file mode 100644
+index 0000000..53607ea
+--- /dev/null
++++ .rspec
+@@ -0,0 +1 @@
++--colour
+diff --git Gemfile Gemfile
+index f0c5fc0..2576b1b 100644
+--- Gemfile
++++ Gemfile
+@@ -14,6 +14,13 @@ gem 'uglifier'
+ 
+ gem 'jquery-rails'
+ 
++# Add mongo mapper
++gem 'mongo_mapper'
++gem 'bson_ext'
++
++# Add redis
++gem 'redis'
++
+ # Use unicorn as the web server
+ # gem 'unicorn'
+ 
+@@ -26,4 +33,12 @@ gem 'jquery-rails'
+ group :test do
+   # Pretty printed test output
+   gem 'turn', :require => false
++  gem 'rspec-rails'
++  gem 'rb-fsevent', :require => false if RUBY_PLATFORM =~ /darwin/i
++  gem 'growl', :require => false if RUBY_PLATFORM =~ /darwin/i
++  gem 'guard-rspec'
++  gem 'guard-livereload'
++  gem 'capybara', :git => 'git://github.com/jnicklas/capybara.git'
++  gem 'launchy'
++  gem 'database_cleaner'
+ end
+diff --git Gemfile.lock Gemfile.lock
+index 3e96cca..20d87e2 100644
+--- Gemfile.lock
++++ Gemfile.lock
+@@ -1,3 +1,15 @@
++GIT
++  remote: git://github.com/jnicklas/capybara.git
++  revision: e1091daced2513a2d2ce15ae4033d9da1ced9f7e
++  specs:
++    capybara (1.0.0.beta1)
++      mime-types (>= 1.16)
++      nokogiri (>= 1.3.3)
++      rack (>= 1.0.0)
++      rack-test (>= 0.5.4)
++      selenium-webdriver (~> 0.2.0)
++      xpath (~> 0.1.4)
++
+ GEM
+   remote: http://rubygems.org/
+   specs:
+@@ -31,28 +43,64 @@ GEM
+       activesupport (= 3.1.0.rc1)
+     activesupport (3.1.0.rc1)
+       multi_json (~> 1.0)
++    addressable (2.2.6)
+     ansi (1.2.5)
+     arel (2.1.1)
+     bcrypt-ruby (2.1.4)
++    bson (1.3.1)
++    bson_ext (1.3.1)
+     builder (3.0.0)
++    childprocess (0.1.9)
++      ffi (~> 1.0.6)
+     coffee-script (2.2.0)
+       coffee-script-source
+       execjs
+     coffee-script-source (1.1.1)
++    configuration (1.2.0)
++    database_cleaner (0.6.7)
++    diff-lcs (1.1.2)
++    em-websocket (0.2.1)
++      addressable (>= 2.1.1)
++      eventmachine (>= 0.12.9)
+     erubis (2.7.0)
++    eventmachine (0.12.10)
+     execjs (1.1.0)
+       multi_json (~> 1.0)
++    ffi (1.0.9)
++    growl (1.0.3)
++    guard (0.3.4)
++      thor (~> 0.14.6)
++    guard-livereload (0.1.11)
++      em-websocket (~> 0.2.0)
++      guard (>= 0.2.2)
++      json (~> 1.5.1)
++    guard-rspec (0.3.1)
++      guard (>= 0.2.2)
+     hike (1.0.0)
+     i18n (0.6.0)
+     jquery-rails (1.0.9)
+       railties (~> 3.0)
+       thor (~> 0.14)
++    json (1.5.1)
++    json_pure (1.5.1)
++    launchy (0.4.0)
++      configuration (>= 0.0.5)
++      rake (>= 0.8.1)
+     mail (2.3.0)
+       i18n (>= 0.4.0)
+       mime-types (~> 1.16)
+       treetop (~> 1.4.8)
+     mime-types (1.16)
++    mongo (1.3.1)
++      bson (>= 1.3.1)
++    mongo_mapper (0.9.1)
++      activemodel (~> 3.0)
++      activesupport (~> 3.0)
++      plucky (~> 0.3.8)
+     multi_json (1.0.3)
++    nokogiri (1.4.4)
++    plucky (0.3.8)
++      mongo (~> 1.3)
+     polyglot (0.3.1)
+     rack (1.3.0)
+     rack-cache (1.0.2)
+@@ -78,7 +126,28 @@ GEM
+       rake (>= 0.8.7)
+       thor (~> 0.14.6)
+     rake (0.9.1)
++    rb-fsevent (0.4.0)
++    redis (2.2.0)
++    rspec (2.6.0)
++      rspec-core (~> 2.6.0)
++      rspec-expectations (~> 2.6.0)
++      rspec-mocks (~> 2.6.0)
++    rspec-core (2.6.3)
++    rspec-expectations (2.6.0)
++      diff-lcs (~> 1.1.2)
++    rspec-mocks (2.6.0)
++    rspec-rails (2.6.1)
++      actionpack (~> 3.0)
++      activesupport (~> 3.0)
++      railties (~> 3.0)
++      rspec (~> 2.6.0)
++    rubyzip (0.9.4)
+     sass (3.1.2)
++    selenium-webdriver (0.2.1)
++      childprocess (>= 0.1.7)
++      ffi (>= 1.0.7)
++      json_pure
++      rubyzip
+     sprockets (2.0.0.beta.9)
+       hike (~> 1.0)
+       rack (~> 1.0)
+@@ -94,14 +163,27 @@ GEM
+     uglifier (0.5.4)
+       execjs (>= 0.3.0)
+       multi_json (>= 1.0.2)
++    xpath (0.1.4)
++      nokogiri (~> 1.3)
+ 
+ PLATFORMS
+   ruby
+ 
+ DEPENDENCIES
++  bson_ext
++  capybara!
+   coffee-script
++  database_cleaner
++  growl
++  guard-livereload
++  guard-rspec
+   jquery-rails
++  launchy
++  mongo_mapper
+   rails (= 3.1.0.rc1)
++  rb-fsevent
++  redis
++  rspec-rails
+   sass
+   sqlite3
+   turn
+diff --git Guardfile Guardfile
+new file mode 100644
+index 0000000..cd22a6a
+--- /dev/null
++++ Guardfile
+@@ -0,0 +1,24 @@
++# A sample Guardfile
++# More info at https://github.com/guard/guard#readme
++
++guard 'rspec', :version => 2 do
++  watch(%r{^spec/.+_spec\.rb})
++  watch(%r{^lib/(.+)\.rb})     { |m| "spec/lib/#{m[1]}_spec.rb" }
++  watch('spec/spec_helper.rb') { "spec" }
++
++  # Rails example
++  watch('spec/spec_helper.rb')                       { "spec" }
++  watch('config/routes.rb')                          { "spec/routing" }
++  watch('app/controllers/application_controller.rb') { "spec/controllers" }
++  watch(%r{^spec/.+_spec\.rb})
++  watch(%r{^app/(.+)\.rb})                           { |m| "spec/#{m[1]}_spec.rb" }
++  watch(%r{^lib/(.+)\.rb})                           { |m| "spec/lib/#{m[1]}_spec.rb" }
++  watch(%r{^app/controllers/(.+)_(controller)\.rb})  { |m| ["spec/routing/#{m[1]}_routing_spec.rb", "spec/#{m[2]}s/#{m[1]}_#{m[2]}_spec.rb", "spec/acceptance/#{m[1]}_spec.rb"] }
++end
++
++guard 'livereload' do
++  watch(%r{app/.+\.(erb|haml)})
++  watch(%r{app/helpers/.+\.rb})
++  watch(%r{public/.+\.(css|js|html)})
++  watch(%r{config/locales/.+\.yml})
++end
+diff --git README README
+index 7c36f23..a7f2434 100644
+--- README
++++ README
+@@ -1,261 +1,3 @@
+-== Welcome to Rails
++== Welcome my Tickets manager
+ 
+-Rails is a web-application framework that includes everything needed to create
+-database-backed web applications according to the Model-View-Control pattern.
+-
+-This pattern splits the view (also called the presentation) into "dumb"
+-templates that are primarily responsible for inserting pre-built data in between
+-HTML tags. The model contains the "smart" domain objects (such as Account,
+-Product, Person, Post) that holds all the business logic and knows how to
+-persist themselves to a database. The controller handles the incoming requests
+-(such as Save New Account, Update Product, Show Post) by manipulating the model
+-and directing data to the view.
+-
+-In Rails, the model is handled by what's called an object-relational mapping
+-layer entitled Active Record. This layer allows you to present the data from
+-database rows as objects and embellish these data objects with business logic
+-methods. You can read more about Active Record in
+-link:files/vendor/rails/activerecord/README.html.
+-
+-The controller and view are handled by the Action Pack, which handles both
+-layers by its two parts: Action View and Action Controller. These two layers
+-are bundled in a single package due to their heavy interdependence. This is
+-unlike the relationship between the Active Record and Action Pack that is much
+-more separate. Each of these packages can be used independently outside of
+-Rails. You can read more about Action Pack in
+-link:files/vendor/rails/actionpack/README.html.
+-
+-
+-== Getting Started
+-
+-1. At the command prompt, create a new Rails application:
+-       <tt>rails new myapp</tt> (where <tt>myapp</tt> is the application name)
+-
+-2. Change directory to <tt>myapp</tt> and start the web server:
+-       <tt>cd myapp; rails server</tt> (run with --help for options)
+-
+-3. Go to http://localhost:3000/ and you'll see:
+-       "Welcome aboard: You're riding Ruby on Rails!"
+-
+-4. Follow the guidelines to start developing your application. You can find
+-the following resources handy:
+-
+-* The Getting Started Guide: http://guides.rubyonrails.org/getting_started.html
+-* Ruby on Rails Tutorial Book: http://www.railstutorial.org/
+-
+-
+-== Debugging Rails
+-
+-Sometimes your application goes wrong. Fortunately there are a lot of tools that
+-will help you debug it and get it back on the rails.
+-
+-First area to check is the application log files. Have "tail -f" commands
+-running on the server.log and development.log. Rails will automatically display
+-debugging and runtime information to these files. Debugging info will also be
+-shown in the browser on requests from 127.0.0.1.
+-
+-You can also log your own messages directly into the log file from your code
+-using the Ruby logger class from inside your controllers. Example:
+-
+-  class WeblogController < ActionController::Base
+-    def destroy
+-      @weblog = Weblog.find(params[:id])
+-      @weblog.destroy
+-      logger.info("#{Time.now} Destroyed Weblog ID ##{@weblog.id}!")
+-    end
+-  end
+-
+-The result will be a message in your log file along the lines of:
+-
+-  Mon Oct 08 14:22:29 +1000 2007 Destroyed Weblog ID #1!
+-
+-More information on how to use the logger is at http://www.ruby-doc.org/core/
+-
+-Also, Ruby documentation can be found at http://www.ruby-lang.org/. There are
+-several books available online as well:
+-
+-* Programming Ruby: http://www.ruby-doc.org/docs/ProgrammingRuby/ (Pickaxe)
+-* Learn to Program: http://pine.fm/LearnToProgram/ (a beginners guide)
+-
+-These two books will bring you up to speed on the Ruby language and also on
+-programming in general.
+-
+-
+-== Debugger
+-
+-Debugger support is available through the debugger command when you start your
+-Mongrel or WEBrick server with --debugger. This means that you can break out of
+-execution at any point in the code, investigate and change the model, and then,
+-resume execution! You need to install ruby-debug to run the server in debugging
+-mode. With gems, use <tt>sudo gem install ruby-debug</tt>. Example:
+-
+-  class WeblogController < ActionController::Base
+-    def index
+-      @posts = Post.all
+-      debugger
+-    end
+-  end
+-
+-So the controller will accept the action, run the first line, then present you
+-with a IRB prompt in the server window. Here you can do things like:
+-
+-  >> @posts.inspect
+-  => "[#<Post:0x14a6be8
+-          @attributes={"title"=>nil, "body"=>nil, "id"=>"1"}>,
+-       #<Post:0x14a6620
+-          @attributes={"title"=>"Rails", "body"=>"Only ten..", "id"=>"2"}>]"
+-  >> @posts.first.title = "hello from a debugger"
+-  => "hello from a debugger"
+-
+-...and even better, you can examine how your runtime objects actually work:
+-
+-  >> f = @posts.first
+-  => #<Post:0x13630c4 @attributes={"title"=>nil, "body"=>nil, "id"=>"1"}>
+-  >> f.
+-  Display all 152 possibilities? (y or n)
+-
+-Finally, when you're ready to resume execution, you can enter "cont".
+-
+-
+-== Console
+-
+-The console is a Ruby shell, which allows you to interact with your
+-application's domain model. Here you'll have all parts of the application
+-configured, just like it is when the application is running. You can inspect
+-domain models, change values, and save to the database. Starting the script
+-without arguments will launch it in the development environment.
+-
+-To start the console, run <tt>rails console</tt> from the application
+-directory.
+-
+-Options:
+-
+-* Passing the <tt>-s, --sandbox</tt> argument will rollback any modifications
+-  made to the database.
+-* Passing an environment name as an argument will load the corresponding
+-  environment. Example: <tt>rails console production</tt>.
+-
+-To reload your controllers and models after launching the console run
+-<tt>reload!</tt>
+-
+-More information about irb can be found at:
+-link:http://www.rubycentral.org/pickaxe/irb.html
+-
+-
+-== dbconsole
+-
+-You can go to the command line of your database directly through <tt>rails
+-dbconsole</tt>. You would be connected to the database with the credentials
+-defined in database.yml. Starting the script without arguments will connect you
+-to the development database. Passing an argument will connect you to a different
+-database, like <tt>rails dbconsole production</tt>. Currently works for MySQL,
+-PostgreSQL and SQLite 3.
+-
+-== Description of Contents
+-
+-The default directory structure of a generated Ruby on Rails application:
+-
+-  |-- app
+-  |   |-- assets
+-  |       |-- images
+-  |       |-- javascripts
+-  |       `-- stylesheets
+-  |   |-- controllers
+-  |   |-- helpers
+-  |   |-- mailers
+-  |   |-- models
+-  |   `-- views
+-  |       `-- layouts
+-  |-- config
+-  |   |-- environments
+-  |   |-- initializers
+-  |   `-- locales
+-  |-- db
+-  |-- doc
+-  |-- lib
+-  |   `-- tasks
+-  |-- log
+-  |-- public
+-  |-- script
+-  |-- test
+-  |   |-- fixtures
+-  |   |-- functional
+-  |   |-- integration
+-  |   |-- performance
+-  |   `-- unit
+-  |-- tmp
+-  |   |-- cache
+-  |   |-- pids
+-  |   |-- sessions
+-  |   `-- sockets
+-  `-- vendor
+-      |-- assets
+-          `-- stylesheets
+-      `-- plugins
+-
+-app
+-  Holds all the code that's specific to this particular application.
+-
+-app/assets
+-  Contains subdirectories for images, stylesheets, and JavaScript files.
+-
+-app/controllers
+-  Holds controllers that should be named like weblogs_controller.rb for
+-  automated URL mapping. All controllers should descend from
+-  ApplicationController which itself descends from ActionController::Base.
+-
+-app/models
+-  Holds models that should be named like post.rb. Models descend from
+-  ActiveRecord::Base by default.
+-
+-app/views
+-  Holds the template files for the view that should be named like
+-  weblogs/index.html.erb for the WeblogsController#index action. All views use
+-  eRuby syntax by default.
+-
+-app/views/layouts
+-  Holds the template files for layouts to be used with views. This models the
+-  common header/footer method of wrapping views. In your views, define a layout
+-  using the <tt>layout :default</tt> and create a file named default.html.erb.
+-  Inside default.html.erb, call <% yield %> to render the view using this
+-  layout.
+-
+-app/helpers
+-  Holds view helpers that should be named like weblogs_helper.rb. These are
+-  generated for you automatically when using generators for controllers.
+-  Helpers can be used to wrap functionality for your views into methods.
+-
+-config
+-  Configuration files for the Rails environment, the routing map, the database,
+-  and other dependencies.
+-
+-db
+-  Contains the database schema in schema.rb. db/migrate contains all the
+-  sequence of Migrations for your schema.
+-
+-doc
+-  This directory is where your application documentation will be stored when
+-  generated using <tt>rake doc:app</tt>
+-
+-lib
+-  Application specific libraries. Basically, any kind of custom code that
+-  doesn't belong under controllers, models, or helpers. This directory is in
+-  the load path.
+-
+-public
+-  The directory available for the web server. Also contains the dispatchers and the
+-  default HTML files. This should be set as the DOCUMENT_ROOT of your web
+-  server.
+-
+-script
+-  Helper scripts for automation and generation.
+-
+-test
+-  Unit and functional tests along with fixtures. When using the rails generate
+-  command, template test files will be generated for you and placed in this
+-  directory.
+-
+-vendor
+-  External libraries that the application depends on. Also includes the plugins
+-  subdirectory. If the app has frozen rails, those gems also go here, under
+-  vendor/rails/. This directory is in the load path.
++This is a application to demonstrate Rails + MongoDB & Redis
+diff --git app/assets/images/rails.png app/assets/images/rails.png
+deleted file mode 100644
+index d5edc04..0000000
+Binary files app/assets/images/rails.png and /dev/null differ
+diff --git app/assets/javascripts/statuses.js.coffee app/assets/javascripts/statuses.js.coffee
+new file mode 100644
+index 0000000..7615679
+--- /dev/null
++++ app/assets/javascripts/statuses.js.coffee
+@@ -0,0 +1,3 @@
++# Place all the behaviors and hooks related to the matching controller here.
++# All this logic will automatically be available in application.js.
++# You can use CoffeeScript in this file: http://jashkenas.github.com/coffee-script/
+diff --git app/assets/javascripts/tickets.js.coffee app/assets/javascripts/tickets.js.coffee
+new file mode 100644
+index 0000000..7615679
+--- /dev/null
++++ app/assets/javascripts/tickets.js.coffee
+@@ -0,0 +1,3 @@
++# Place all the behaviors and hooks related to the matching controller here.
++# All this logic will automatically be available in application.js.
++# You can use CoffeeScript in this file: http://jashkenas.github.com/coffee-script/
+diff --git app/assets/stylesheets/application.css app/assets/stylesheets/application.css
+index fc25b57..6004e31 100644
+--- app/assets/stylesheets/application.css
++++ app/assets/stylesheets/application.css
+@@ -4,4 +4,8 @@
+  * the top of the compiled file, but it's generally better to create a new file per style scope.
+  *= require_self
+  *= require_tree . 
+-*/
+\ No newline at end of file
++*/
++.translation_missing
++{
++	background-color: #red;
++}
+\ No newline at end of file
+diff --git app/assets/stylesheets/scaffold.css.scss app/assets/stylesheets/scaffold.css.scss
+new file mode 100644
+index 0000000..45116b5
+--- /dev/null
++++ app/assets/stylesheets/scaffold.css.scss
+@@ -0,0 +1,58 @@
++body { background-color: #fff; color: #333; }
++
++body, p, ol, ul, td {
++  font-family: verdana, arial, helvetica, sans-serif;
++  font-size:   13px;
++  line-height: 18px;
++}
++
++pre {
++  background-color: #eee;
++  padding: 10px;
++  font-size: 11px;
++}
++
++a { 
++  color: #000;
++  &:visited { color: #666; }
++  &:hover { color: #fff; background-color:#000; }
++}
++
++div.field, div.actions {
++  margin-bottom: 10px;
++}
++
++#notice {
++  color: green;
++}
++
++.field_with_errors {
++  padding: 2px;
++  background-color: red;
++  display: table;
++}
++
++#error_explanation {
++  width: 450px;
++  border: 2px solid red;
++  padding: 7px;
++  padding-bottom: 0;
++  margin-bottom: 20px;
++  background-color: #f0f0f0;
++  
++  h2 {
++    text-align: left;
++    font-weight: bold;
++    padding: 5px 5px 5px 15px;
++    font-size: 12px;
++    margin: -7px;
++    margin-bottom: 0px;
++    background-color: #c00;
++    color: #fff;
++  }
++  
++  ul li {
++    font-size: 12px;
++    list-style: square;
++  }
++}
+\ No newline at end of file
+diff --git app/assets/stylesheets/statuses.css.scss app/assets/stylesheets/statuses.css.scss
+new file mode 100644
+index 0000000..ba95e21
+--- /dev/null
++++ app/assets/stylesheets/statuses.css.scss
+@@ -0,0 +1,5 @@
++/* 
++  Place all the styles related to the matching controller here.
++  They will automatically be included in application.css.
++  You can use Sass (SCSS) here: http://sass-lang.com/
++*/
+diff --git app/assets/stylesheets/tickets.css.scss app/assets/stylesheets/tickets.css.scss
+new file mode 100644
+index 0000000..ba95e21
+--- /dev/null
++++ app/assets/stylesheets/tickets.css.scss
+@@ -0,0 +1,5 @@
++/* 
++  Place all the styles related to the matching controller here.
++  They will automatically be included in application.css.
++  You can use Sass (SCSS) here: http://sass-lang.com/
++*/
+diff --git app/controllers/notes_controller.rb app/controllers/notes_controller.rb
+new file mode 100644
+index 0000000..ae90d6b
+--- /dev/null
++++ app/controllers/notes_controller.rb
+@@ -0,0 +1,83 @@
++class NotesController < ApplicationController
++  # GET /notes
++  # GET /notes.json
++  def index
++    @notes = Note.all
++
++    respond_to do |format|
++      format.html # index.html.erb
++      format.json { render json: @notes }
++    end
++  end
++
++  # GET /notes/1
++  # GET /notes/1.json
++  def show
++    @note = Note.find(params[:id])
++
++    respond_to do |format|
++      format.html # show.html.erb
++      format.json { render json: @note }
++    end
++  end
++
++  # GET /notes/new
++  # GET /notes/new.json
++  def new
++    @note = Note.new
++
++    respond_to do |format|
++      format.html # new.html.erb
++      format.json { render json: @note }
++    end
++  end
++
++  # GET /notes/1/edit
++  def edit
++    @note = Note.find(params[:id])
++  end
++
++  # POST /notes
++  # POST /notes.json
++  def create
++    @note = Note.new(params[:note])
++
++    respond_to do |format|
++      if @note.save
++        format.html { redirect_to @note, notice: 'Note was successfully created.' }
++        format.json { render json: @note, status: :created, location: @note }
++      else
++        format.html { render action: "new" }
++        format.json { render json: @note.errors, status: :unprocessable_entity }
++      end
++    end
++  end
++
++  # PUT /notes/1
++  # PUT /notes/1.json
++  def update
++    @note = Note.find(params[:id])
++
++    respond_to do |format|
++      if @note.update_attributes(params[:note])
++        format.html { redirect_to @note, notice: 'Note was successfully updated.' }
++        format.json { head :ok }
++      else
++        format.html { render action: "edit" }
++        format.json { render json: @note.errors, status: :unprocessable_entity }
++      end
++    end
++  end
++
++  # DELETE /notes/1
++  # DELETE /notes/1.json
++  def destroy
++    @note = Note.find(params[:id])
++    @note.destroy
++
++    respond_to do |format|
++      format.html { redirect_to notes_url }
++      format.json { head :ok }
++    end
++  end
++end
+diff --git app/controllers/statuses_controller.rb app/controllers/statuses_controller.rb
+new file mode 100644
+index 0000000..b790887
+--- /dev/null
++++ app/controllers/statuses_controller.rb
+@@ -0,0 +1,83 @@
++class StatusesController < ApplicationController
++  # GET /statuses
++  # GET /statuses.json
++  def index
++    @statuses = Status.all
++
++    respond_to do |format|
++      format.html # index.html.erb
++      format.json { render json: @statuses }
++    end
++  end
++
++  # GET /statuses/1
++  # GET /statuses/1.json
++  def show
++    @status = Status.find(params[:id])
++
++    respond_to do |format|
++      format.html # show.html.erb
++      format.json { render json: @status }
++    end
++  end
++
++  # GET /statuses/new
++  # GET /statuses/new.json
++  def new
++    @status = Status.new
++
++    respond_to do |format|
++      format.html # new.html.erb
++      format.json { render json: @status }
++    end
++  end
++
++  # GET /statuses/1/edit
++  def edit
++    @status = Status.find(params[:id])
++  end
++
++  # POST /statuses
++  # POST /statuses.json
++  def create
++    @status = Status.new(params[:status])
++
++    respond_to do |format|
++      if @status.save
++        format.html { redirect_to @status, notice: 'Status was successfully created.' }
++        format.json { render json: @status, status: :created, location: @status }
++      else
++        format.html { render action: "new" }
++        format.json { render json: @status.errors, status: :unprocessable_entity }
++      end
++    end
++  end
++
++  # PUT /statuses/1
++  # PUT /statuses/1.json
++  def update
++    @status = Status.find(params[:id])
++
++    respond_to do |format|
++      if @status.update_attributes(params[:status])
++        format.html { redirect_to @status, notice: 'Status was successfully updated.' }
++        format.json { head :ok }
++      else
++        format.html { render action: "edit" }
++        format.json { render json: @status.errors, status: :unprocessable_entity }
++      end
++    end
++  end
++
++  # DELETE /statuses/1
++  # DELETE /statuses/1.json
++  def destroy
++    @status = Status.find(params[:id])
++    @status.destroy
++
++    respond_to do |format|
++      format.html { redirect_to statuses_url }
++      format.json { head :ok }
++    end
++  end
++end
+diff --git app/controllers/tickets_controller.rb app/controllers/tickets_controller.rb
+new file mode 100644
+index 0000000..f478a61
+--- /dev/null
++++ app/controllers/tickets_controller.rb
+@@ -0,0 +1,83 @@
++class TicketsController < ApplicationController
++  # GET /tickets
++  # GET /tickets.json
++  def index
++    @tickets = Ticket.all
++
++    respond_to do |format|
++      format.html # index.html.erb
++      format.json { render json: @tickets }
++    end
++  end
++
++  # GET /tickets/1
++  # GET /tickets/1.json
++  def show
++    @ticket = Ticket.find(params[:id])
++
++    respond_to do |format|
++      format.html # show.html.erb
++      format.json { render json: @ticket }
++    end
++  end
++
++  # GET /tickets/new
++  # GET /tickets/new.json
++  def new
++    @ticket = Ticket.new
++
++    respond_to do |format|
++      format.html # new.html.erb
++      format.json { render json: @ticket }
++    end
++  end
++
++  # GET /tickets/1/edit
++  def edit
++    @ticket = Ticket.find(params[:id])
++  end
++
++  # POST /tickets
++  # POST /tickets.json
++  def create
++    @ticket = Ticket.new(params[:ticket])
++
++    respond_to do |format|
++      if @ticket.save
++        format.html { redirect_to @ticket, notice: 'Ticket was successfully created.' }
++        format.json { render json: @ticket, status: :created, location: @ticket }
++      else
++        format.html { render action: "new" }
++        format.json { render json: @ticket.errors, status: :unprocessable_entity }
++      end
++    end
++  end
++
++  # PUT /tickets/1
++  # PUT /tickets/1.json
++  def update
++    @ticket = Ticket.find(params[:id])
++
++    respond_to do |format|
++      if @ticket.update_attributes(params[:ticket])
++        format.html { redirect_to @ticket, notice: 'Ticket was successfully updated.' }
++        format.json { head :ok }
++      else
++        format.html { render action: "edit" }
++        format.json { render json: @ticket.errors, status: :unprocessable_entity }
++      end
++    end
++  end
++
++  # DELETE /tickets/1
++  # DELETE /tickets/1.json
++  def destroy
++    @ticket = Ticket.find(params[:id])
++    @ticket.destroy
++
++    respond_to do |format|
++      format.html { redirect_to tickets_url }
++      format.json { head :ok }
++    end
++  end
++end
+diff --git app/helpers/notes_helper.rb app/helpers/notes_helper.rb
+new file mode 100644
+index 0000000..8078f73
+--- /dev/null
++++ app/helpers/notes_helper.rb
+@@ -0,0 +1,2 @@
++module NotesHelper
++end
+diff --git app/helpers/statuses_helper.rb app/helpers/statuses_helper.rb
+new file mode 100644
+index 0000000..62fedd9
+--- /dev/null
++++ app/helpers/statuses_helper.rb
+@@ -0,0 +1,2 @@
++module StatusesHelper
++end
+diff --git app/helpers/tickets_helper.rb app/helpers/tickets_helper.rb
+new file mode 100644
+index 0000000..4722254
+--- /dev/null
++++ app/helpers/tickets_helper.rb
+@@ -0,0 +1,2 @@
++module TicketsHelper
++end
+diff --git app/models/note.rb app/models/note.rb
+new file mode 100644
+index 0000000..0a30a71
+--- /dev/null
++++ app/models/note.rb
+@@ -0,0 +1,6 @@
++class Note
++  include MongoMapper::Document
++  
++  key :title, String
++  key :body, String
++end
+diff --git app/models/status.rb app/models/status.rb
+new file mode 100644
+index 0000000..75c8d31
+--- /dev/null
++++ app/models/status.rb
+@@ -0,0 +1,4 @@
++class Status < ActiveRecord::Base
++  validates_presence_of :name
++  has_many :tickets
++end
+diff --git app/models/ticket.rb app/models/ticket.rb
+new file mode 100644
+index 0000000..79061de
+--- /dev/null
++++ app/models/ticket.rb
+@@ -0,0 +1,5 @@
++class Ticket < ActiveRecord::Base
++  validates_presence_of :name
++  validates_presence_of :status
++  belongs_to :status
++end
+diff --git app/views/notes/_form.html.erb app/views/notes/_form.html.erb
+new file mode 100644
+index 0000000..014a033
+--- /dev/null
++++ app/views/notes/_form.html.erb
+@@ -0,0 +1,25 @@
++<%= form_for(@note) do |f| %>
++  <% if @note.errors.any? %>
++    <div id="error_explanation">
++      <h2><%= pluralize(@note.errors.count, "error") %> prohibited this note from being saved:</h2>
++
++      <ul>
++      <% @note.errors.full_messages.each do |msg| %>
++        <li><%= msg %></li>
++      <% end %>
++      </ul>
++    </div>
++  <% end %>
++
++  <div class="field">
++    <%= f.label :title %><br />
++    <%= f.text_field :title %>
++  </div>
++  <div class="field">
++    <%= f.label :body %><br />
++    <%= f.text_area :body %>
++  </div>
++  <div class="actions">
++    <%= f.submit %>
++  </div>
++<% end %>
+diff --git app/views/notes/edit.html.erb app/views/notes/edit.html.erb
+new file mode 100644
+index 0000000..b72a83e
+--- /dev/null
++++ app/views/notes/edit.html.erb
+@@ -0,0 +1,6 @@
++<h1>Editing note</h1>
++
++<%= render 'form' %>
++
++<%= link_to 'Show', @note %> |
++<%= link_to 'Back', notes_path %>
+diff --git app/views/notes/index.html.erb app/views/notes/index.html.erb
+new file mode 100644
+index 0000000..e400d83
+--- /dev/null
++++ app/views/notes/index.html.erb
+@@ -0,0 +1,25 @@
++<h1>Listing notes</h1>
++
++<table>
++  <tr>
++    <th>Title</th>
++    <th>Body</th>
++    <th></th>
++    <th></th>
++    <th></th>
++  </tr>
++
++<% @notes.each do |note| %>
++  <tr>
++    <td><%= note.title %></td>
++    <td><%= note.body %></td>
++    <td><%= link_to 'Show', note %></td>
++    <td><%= link_to 'Edit', edit_note_path(note) %></td>
++    <td><%= link_to 'Destroy', note, confirm: 'Are you sure?', method: :delete %></td>
++  </tr>
++<% end %>
++</table>
++
++<br />
++
++<%= link_to 'New Note', new_note_path %>
+diff --git app/views/notes/new.html.erb app/views/notes/new.html.erb
+new file mode 100644
+index 0000000..7c6b790
+--- /dev/null
++++ app/views/notes/new.html.erb
+@@ -0,0 +1,5 @@
++<h1>New note</h1>
++
++<%= render 'form' %>
++
++<%= link_to 'Back', notes_path %>
+diff --git app/views/notes/show.html.erb app/views/notes/show.html.erb
+new file mode 100644
+index 0000000..8335edf
+--- /dev/null
++++ app/views/notes/show.html.erb
+@@ -0,0 +1,14 @@
++<p id="notice"><%= notice %></p>
++
++<p>
++  <b>Name:</b>
++  <%= @note.title %>
++</p>
++
++<p>
++  <b>Description:</b>
++  <%= @note.body %>
++</p>
++
++<%= link_to 'Edit', edit_note_path(@note) %> |
++<%= link_to 'Back', notes_path %>
+diff --git app/views/statuses/_form.html.erb app/views/statuses/_form.html.erb
+new file mode 100644
+index 0000000..9b81172
+--- /dev/null
++++ app/views/statuses/_form.html.erb
+@@ -0,0 +1,25 @@
++<%= form_for(@status) do |f| %>
++  <% if @status.errors.any? %>
++    <div id="error_explanation">
++      <h2><%= pluralize(@status.errors.count, "error") %> prohibited this status from being saved:</h2>
++
++      <ul>
++      <% @status.errors.full_messages.each do |msg| %>
++        <li><%= msg %></li>
++      <% end %>
++      </ul>
++    </div>
++  <% end %>
++
++  <div class="field">
++    <%= f.label :name %><br />
++    <%= f.text_field :name %>
++  </div>
++  <div class="field">
++    <%= f.label :description %><br />
++    <%= f.text_area :description %>
++  </div>
++  <div class="actions">
++    <%= f.submit %>
++  </div>
++<% end %>
+diff --git app/views/statuses/edit.html.erb app/views/statuses/edit.html.erb
+new file mode 100644
+index 0000000..16ae137
+--- /dev/null
++++ app/views/statuses/edit.html.erb
+@@ -0,0 +1,6 @@
++<h1>Editing status</h1>
++
++<%= render 'form' %>
++
++<%= link_to 'Show', @status %> |
++<%= link_to 'Back', statuses_path %>
+diff --git app/views/statuses/index.html.erb app/views/statuses/index.html.erb
+new file mode 100644
+index 0000000..e947148
+--- /dev/null
++++ app/views/statuses/index.html.erb
+@@ -0,0 +1,25 @@
++<h1>Listing statuses</h1>
++
++<table>
++  <tr>
++    <th>Name</th>
++    <th>Description</th>
++    <th></th>
++    <th></th>
++    <th></th>
++  </tr>
++
++<% @statuses.each do |status| %>
++  <tr>
++    <td><%= status.name %></td>
++    <td><%= status.description %></td>
++    <td><%= link_to 'Show', status %></td>
++    <td><%= link_to 'Edit', edit_status_path(status) %></td>
++    <td><%= link_to 'Destroy', status, confirm: 'Are you sure?', method: :delete %></td>
++  </tr>
++<% end %>
++</table>
++
++<br />
++
++<%= link_to 'New Status', new_status_path %>
+diff --git app/views/statuses/new.html.erb app/views/statuses/new.html.erb
+new file mode 100644
+index 0000000..88d9611
+--- /dev/null
++++ app/views/statuses/new.html.erb
+@@ -0,0 +1,5 @@
++<h1>New status</h1>
++
++<%= render 'form' %>
++
++<%= link_to 'Back', statuses_path %>
+diff --git app/views/statuses/show.html.erb app/views/statuses/show.html.erb
+new file mode 100644
+index 0000000..a220dac
+--- /dev/null
++++ app/views/statuses/show.html.erb
+@@ -0,0 +1,15 @@
++<p id="notice"><%= notice %></p>
++
++<p>
++  <b>Name:</b>
++  <%= @status.name %>
++</p>
++
++<p>
++  <b>Description:</b>
++  <%= @status.description %>
++</p>
++
++
++<%= link_to 'Edit', edit_status_path(@status) %> |
++<%= link_to 'Back', statuses_path %>
+diff --git app/views/tickets/_form.html.erb app/views/tickets/_form.html.erb
+new file mode 100644
+index 0000000..8ffa108
+--- /dev/null
++++ app/views/tickets/_form.html.erb
+@@ -0,0 +1,29 @@
++<%= form_for(@ticket) do |f| %>
++  <% if @ticket.errors.any? %>
++    <div id="error_explanation">
++      <h2><%= pluralize(@ticket.errors.count, "error") %> prohibited this ticket from being saved:</h2>
++
++      <ul>
++      <% @ticket.errors.full_messages.each do |msg| %>
++        <li><%= msg %></li>
++      <% end %>
++      </ul>
++    </div>
++  <% end %>
++
++  <div class="field">
++    <%= f.label t('status') %><br />
++    <%= f.select :status_id, Status.all.collect { |s| [s.name, s.id]} %>
++  </div>
++  <div class="field">
++    <%= f.label t('name') %><br />
++    <%= f.text_field :name %>
++  </div>
++  <div class="field">
++    <%= f.label t('description') %><br />
++    <%= f.text_area :description %>
++  </div>
++  <div class="actions">
++    <%= f.submit %>
++  </div>
++<% end %>
+diff --git app/views/tickets/edit.html.erb app/views/tickets/edit.html.erb
+new file mode 100644
+index 0000000..734868d
+--- /dev/null
++++ app/views/tickets/edit.html.erb
+@@ -0,0 +1,6 @@
++<h1><%= t('editing_ticket')%></h1>
++
++<%= render 'form' %>
++
++<%= link_to t('show'), @ticket %> |
++<%= link_to t('back'), tickets_path %>
+diff --git app/views/tickets/index.html.erb app/views/tickets/index.html.erb
+new file mode 100644
+index 0000000..e893b93
+--- /dev/null
++++ app/views/tickets/index.html.erb
+@@ -0,0 +1,28 @@
++<h1><%= t('welcome') %></h1>
++<h1><%= t('listing_tickets') %></h1>
++
++<table>
++  <tr>
++    <th><%= t('status') %></th>
++    <th><%= t('name') %></th>
++    <th><%= t('description') %></th>
++    <th></th>
++    <th></th>
++    <th></th>
++  </tr>
++
++<% @tickets.each do |ticket| %>
++  <tr>
++    <td><%= ticket.status.name %></td>
++    <td><%= ticket.name %></td>
++    <td><%= ticket.description %></td>
++    <td><%= link_to t('show'), ticket %></td>
++    <td><%= link_to t('edit'), edit_ticket_path(ticket) %></td>
++    <td><%= link_to t('destroy'), ticket, confirm: t('are_you_sure'), method: :delete %></td>
++  </tr>
++<% end %>
++</table>
++
++<br />
++
++<%= link_to t('new_ticket'), new_ticket_path %>
+diff --git app/views/tickets/new.html.erb app/views/tickets/new.html.erb
+new file mode 100644
+index 0000000..7f6deef
+--- /dev/null
++++ app/views/tickets/new.html.erb
+@@ -0,0 +1,5 @@
++<h1><%= t('new_ticket')%></h1>
++
++<%= render 'form' %>
++
++<%= link_to t('back'), tickets_path %>
+diff --git app/views/tickets/show.html.erb app/views/tickets/show.html.erb
+new file mode 100644
+index 0000000..f97485a
+--- /dev/null
++++ app/views/tickets/show.html.erb
+@@ -0,0 +1,20 @@
++<p id="notice"><%= notice %></p>
++
++<p>
++  <b><%= t('status') %>:</b>
++  <%= @ticket.status.nil? ? t('unknown') : @ticket.status.name %>
++</p>
++
++<p>
++  <b><%= t('name') %>:</b>
++  <%= @ticket.name %>
++</p>
++
++<p>
++  <b><%= t('description') %>:</b>
++  <%= @ticket.description %>
++</p>
++
++
++<%= link_to t('edit'), edit_ticket_path(@ticket) %> |
++<%= link_to t('back'), tickets_path %>
+diff --git config/application.rb config/application.rb
+index 4ee1342..d83f673 100644
+--- config/application.rb
++++ config/application.rb
+@@ -28,7 +28,7 @@ module Tickets
+ 
+     # The default locale is :en and all translations from config/locales/*.rb,yml are auto loaded.
+     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
+-    # config.i18n.default_locale = :de
++    config.i18n.default_locale = :fr
+ 
+     # Please note that JavaScript expansions are *ignored altogether* if the asset
+     # pipeline is enabled (see config.assets.enabled below). Put your defaults in
+@@ -45,5 +45,10 @@ module Tickets
+ 
+     # Enable the asset pipeline
+     config.assets.enabled = true
++    
++    config.generators do |g|
++      g.test_framework   :rspec, :fixture => true, :views => false
++      g.integration_tool :rspec
++    end
+   end
+ end
+diff --git config/initializers/mongo.rb config/initializers/mongo.rb
+new file mode 100644
+index 0000000..c6914ed
+--- /dev/null
++++ config/initializers/mongo.rb
+@@ -0,0 +1,8 @@
++MongoMapper.connection = Mongo::Connection.new('localhost', 27017)
++MongoMapper.database = "#myapp-#{Rails.env}"
++
++if defined?(PhusionPassenger)
++   PhusionPassenger.on_event(:starting_worker_process) do |forked|
++     MongoMapper.connection.connect if forked
++   end
++end
+diff --git config/locales/en.yml config/locales/en.yml
+index 179c14c..a12c854 100644
+--- config/locales/en.yml
++++ config/locales/en.yml
+@@ -2,4 +2,16 @@
+ # See https://github.com/svenfuchs/rails-i18n/tree/master/rails%2Flocale for starting points.
+ 
+ en:
+-  hello: "Hello world"
++  listing_tickets: "Listing tickets"
++  status: "Status"
++  name: "Name"
++  description: "Description"
++  new_ticket: "New Ticket"
++  show: "Show"
++  edit: "Edit"
++  destroy: "Destroy"
++  unknown: "Unknown"
++  back: "Back"
++  are_you_sure: "Are you sure?"
++  editing_ticket: "Editing ticket"
++  
+\ No newline at end of file
+diff --git config/locales/fr.yml config/locales/fr.yml
+new file mode 100644
+index 0000000..b03c218
+--- /dev/null
++++ config/locales/fr.yml
+@@ -0,0 +1,16 @@
++# Sample localization file for English. Add more files in this directory for other locales.
++# See https://github.com/svenfuchs/rails-i18n/tree/master/rails%2Flocale for starting points.
++
++fr:
++  listing_tickets: "Liste des tickets"
++  status: "Statut"
++  name: "Nom"
++  description: "Description"
++  new_ticket: "Nouveau ticket"
++  show: "Afficher"
++  edit: "Editer"
++  destroy: "Supprimer"
++  unknown: "Inconnu"
++  back: "Retour"
++  are_you_sure: "Etes-vous sur ?"
++  editing_ticket: "Edition du ticket"
+diff --git config/routes.rb config/routes.rb
+index 44cc39b..b13e965 100644
+--- config/routes.rb
++++ config/routes.rb
+@@ -1,58 +1,11 @@
+ Tickets::Application.routes.draw do
+-  # The priority is based upon order of creation:
+-  # first created -> highest priority.
++  resources :translations
+ 
+-  # Sample of regular route:
+-  #   match 'products/:id' => 'catalog#view'
+-  # Keep in mind you can assign values other than :controller and :action
++  resources :statuses
+ 
+-  # Sample of named route:
+-  #   match 'products/:id/purchase' => 'catalog#purchase', :as => :purchase
+-  # This route can be invoked with purchase_url(:id => product.id)
++  resources :tickets
+ 
+-  # Sample resource route (maps HTTP verbs to controller actions automatically):
+-  #   resources :products
++  resources :notes
+ 
+-  # Sample resource route with options:
+-  #   resources :products do
+-  #     member do
+-  #       get 'short'
+-  #       post 'toggle'
+-  #     end
+-  #
+-  #     collection do
+-  #       get 'sold'
+-  #     end
+-  #   end
+-
+-  # Sample resource route with sub-resources:
+-  #   resources :products do
+-  #     resources :comments, :sales
+-  #     resource :seller
+-  #   end
+-
+-  # Sample resource route with more complex sub-resources
+-  #   resources :products do
+-  #     resources :comments
+-  #     resources :sales do
+-  #       get 'recent', :on => :collection
+-  #     end
+-  #   end
+-
+-  # Sample resource route within a namespace:
+-  #   namespace :admin do
+-  #     # Directs /admin/products/* to Admin::ProductsController
+-  #     # (app/controllers/admin/products_controller.rb)
+-  #     resources :products
+-  #   end
+-
+-  # You can have the root of your site routed with "root"
+-  # just remember to delete public/index.html.
+-  # root :to => 'welcome#index'
+-
+-  # See how all your routes lay out with "rake routes"
+-
+-  # This is a legacy wild controller route that's not recommended for RESTful applications.
+-  # Note: This route will make all actions in every controller accessible via GET requests.
+-  # match ':controller(/:action(/:id(.:format)))'
++  root :to => 'tickets#index'
+ end
+diff --git db/migrate/20110602142024_create_tickets.rb db/migrate/20110602142024_create_tickets.rb
+new file mode 100644
+index 0000000..38cc881
+--- /dev/null
++++ db/migrate/20110602142024_create_tickets.rb
+@@ -0,0 +1,10 @@
++class CreateTickets < ActiveRecord::Migration
++  def change
++    create_table :tickets do |t|
++      t.string :name
++      t.text :description
++
++      t.timestamps
++    end
++  end
++end
+diff --git db/migrate/20110602143534_create_statuses.rb db/migrate/20110602143534_create_statuses.rb
+new file mode 100644
+index 0000000..3c08c3a
+--- /dev/null
++++ db/migrate/20110602143534_create_statuses.rb
+@@ -0,0 +1,10 @@
++class CreateStatuses < ActiveRecord::Migration
++  def change
++    create_table :statuses do |t|
++      t.string :name
++      t.text :description
++
++      t.timestamps
++    end
++  end
++end
+diff --git db/migrate/20110602154047_add_status_id_to_tickets.rb db/migrate/20110602154047_add_status_id_to_tickets.rb
+new file mode 100644
+index 0000000..4a7a51c
+--- /dev/null
++++ db/migrate/20110602154047_add_status_id_to_tickets.rb
+@@ -0,0 +1,5 @@
++class AddStatusIdToTickets < ActiveRecord::Migration
++  def change
++    add_column :tickets, :status_id, :integer
++  end
++end
+diff --git db/schema.rb db/schema.rb
+new file mode 100644
+index 0000000..52a43f1
+--- /dev/null
++++ db/schema.rb
+@@ -0,0 +1,30 @@
++# This file is auto-generated from the current state of the database. Instead
++# of editing this file, please use the migrations feature of Active Record to
++# incrementally modify your database, and then regenerate this schema definition.
++#
++# Note that this schema.rb definition is the authoritative source for your
++# database schema. If you need to create the application database on another
++# system, you should be using db:schema:load, not running all the migrations
++# from scratch. The latter is a flawed and unsustainable approach (the more migrations
++# you'll amass, the slower it'll run and the greater likelihood for issues).
++#
++# It's strongly recommended to check this file into your version control system.
++
++ActiveRecord::Schema.define(:version => 20110602154047) do
++
++  create_table "statuses", :force => true do |t|
++    t.string   "name"
++    t.text     "description"
++    t.datetime "created_at"
++    t.datetime "updated_at"
++  end
++
++  create_table "tickets", :force => true do |t|
++    t.string   "name"
++    t.text     "description"
++    t.datetime "created_at"
++    t.datetime "updated_at"
++    t.integer  "status_id"
++  end
++
++end
+diff --git public/index.html public/index.html
+deleted file mode 100644
+index 9d9811a..0000000
+--- public/index.html
++++ /dev/null
+@@ -1,241 +0,0 @@
+-<!DOCTYPE html>
+-<html>
+-  <head>
+-    <title>Ruby on Rails: Welcome aboard</title>
+-    <style type="text/css" media="screen">
+-      body {
+-        margin: 0;
+-        margin-bottom: 25px;
+-        padding: 0;
+-        background-color: #f0f0f0;
+-        font-family: "Lucida Grande", "Bitstream Vera Sans", "Verdana";
+-        font-size: 13px;
+-        color: #333;
+-      }
+-
+-      h1 {
+-        font-size: 28px;
+-        color: #000;
+-      }
+-
+-      a  {color: #03c}
+-      a:hover {
+-        background-color: #03c;
+-        color: white;
+-        text-decoration: none;
+-      }
+-
+-
+-      #page {
+-        background-color: #f0f0f0;
+-        width: 750px;
+-        margin: 0;
+-        margin-left: auto;
+-        margin-right: auto;
+-      }
+-
+-      #content {
+-        float: left;
+-        background-color: white;
+-        border: 3px solid #aaa;
+-        border-top: none;
+-        padding: 25px;
+-        width: 500px;
+-      }
+-
+-      #sidebar {
+-        float: right;
+-        width: 175px;
+-      }
+-
+-      #footer {
+-        clear: both;
+-      }
+-
+-      #header, #about, #getting-started {
+-        padding-left: 75px;
+-        padding-right: 30px;
+-      }
+-
+-
+-      #header {
+-        background-image: url("/assets/rails.png");
+-        background-repeat: no-repeat;
+-        background-position: top left;
+-        height: 64px;
+-      }
+-      #header h1, #header h2 {margin: 0}
+-      #header h2 {
+-        color: #888;
+-        font-weight: normal;
+-        font-size: 16px;
+-      }
+-
+-
+-      #about h3 {
+-        margin: 0;
+-        margin-bottom: 10px;
+-        font-size: 14px;
+-      }
+-
+-      #about-content {
+-        background-color: #ffd;
+-        border: 1px solid #fc0;
+-        margin-left: -55px;
+-        margin-right: -10px;
+-      }
+-      #about-content table {
+-        margin-top: 10px;
+-        margin-bottom: 10px;
+-        font-size: 11px;
+-        border-collapse: collapse;
+-      }
+-      #about-content td {
+-        padding: 10px;
+-        padding-top: 3px;
+-        padding-bottom: 3px;
+-      }
+-      #about-content td.name  {color: #555}
+-      #about-content td.value {color: #000}
+-
+-      #about-content ul {
+-        padding: 0;
+-        list-style-type: none;
+-      }
+-
+-      #about-content.failure {
+-        background-color: #fcc;
+-        border: 1px solid #f00;
+-      }
+-      #about-content.failure p {
+-        margin: 0;
+-        padding: 10px;
+-      }
+-
+-
+-      #getting-started {
+-        border-top: 1px solid #ccc;
+-        margin-top: 25px;
+-        padding-top: 15px;
+-      }
+-      #getting-started h1 {
+-        margin: 0;
+-        font-size: 20px;
+-      }
+-      #getting-started h2 {
+-        margin: 0;
+-        font-size: 14px;
+-        font-weight: normal;
+-        color: #333;
+-        margin-bottom: 25px;
+-      }
+-      #getting-started ol {
+-        margin-left: 0;
+-        padding-left: 0;
+-      }
+-      #getting-started li {
+-        font-size: 18px;
+-        color: #888;
+-        margin-bottom: 25px;
+-      }
+-      #getting-started li h2 {
+-        margin: 0;
+-        font-weight: normal;
+-        font-size: 18px;
+-        color: #333;
+-      }
+-      #getting-started li p {
+-        color: #555;
+-        font-size: 13px;
+-      }
+-
+-
+-      #sidebar ul {
+-        margin-left: 0;
+-        padding-left: 0;
+-      }
+-      #sidebar ul h3 {
+-        margin-top: 25px;
+-        font-size: 16px;
+-        padding-bottom: 10px;
+-        border-bottom: 1px solid #ccc;
+-      }
+-      #sidebar li {
+-        list-style-type: none;
+-      }
+-      #sidebar ul.links li {
+-        margin-bottom: 5px;
+-      }
+-
+-      .filename {
+-        font-style: italic;
+-      }
+-    </style>
+-    <script type="text/javascript">
+-      function about() {
+-        info = document.getElementById('about-content');
+-        if (window.XMLHttpRequest)
+-          { xhr = new XMLHttpRequest(); }
+-        else
+-          { xhr = new ActiveXObject("Microsoft.XMLHTTP"); }
+-        xhr.open("GET","rails/info/properties",false);
+-        xhr.send("");
+-        info.innerHTML = xhr.responseText;
+-        info.style.display = 'block'
+-      }
+-    </script>
+-  </head>
+-  <body>
+-    <div id="page">
+-      <div id="sidebar">
+-        <ul id="sidebar-items">
+-          <li>
+-            <h3>Browse the documentation</h3>
+-            <ul class="links">
+-              <li><a href="http://guides.rubyonrails.org/">Rails Guides</a></li>
+-              <li><a href="http://api.rubyonrails.org/">Rails API</a></li>
+-              <li><a href="http://www.ruby-doc.org/core/">Ruby core</a></li>
+-              <li><a href="http://www.ruby-doc.org/stdlib/">Ruby standard library</a></li>
+-            </ul>
+-          </li>
+-        </ul>
+-      </div>
+-
+-      <div id="content">
+-        <div id="header">
+-          <h1>Welcome aboard</h1>
+-          <h2>You&rsquo;re riding Ruby on Rails!</h2>
+-        </div>
+-
+-        <div id="about">
+-          <h3><a href="rails/info/properties" onclick="about(); return false">About your application&rsquo;s environment</a></h3>
+-          <div id="about-content" style="display: none"></div>
+-        </div>
+-
+-        <div id="getting-started">
+-          <h1>Getting started</h1>
+-          <h2>Here&rsquo;s how to get rolling:</h2>
+-
+-          <ol>
+-            <li>
+-              <h2>Use <code>rails generate</code> to create your models and controllers</h2>
+-              <p>To see all available options, run it without parameters.</p>
+-            </li>
+-
+-            <li>
+-              <h2>Set up a default route and remove <span class="filename">public/index.html</span></h2>
+-              <p>Routes are set up in <span class="filename">config/routes.rb</span>.</p>
+-            </li>
+-
+-            <li>
+-              <h2>Create your database</h2>
+-              <p>Run <code>rake db:create</code> to create your database. If you're not using SQLite (the default), edit <span class="filename">config/database.yml</span> with your username and password.</p>
+-            </li>
+-          </ol>
+-        </div>
+-      </div>
+-
+-      <div id="footer">&nbsp;</div>
+-    </div>
+-  </body>
+-</html>
+diff --git spec/controllers/notes_controller_spec.rb spec/controllers/notes_controller_spec.rb
+new file mode 100644
+index 0000000..c21d5e1
+--- /dev/null
++++ spec/controllers/notes_controller_spec.rb
+@@ -0,0 +1,160 @@
++require 'spec_helper'
++
++# This spec was generated by rspec-rails when you ran the scaffold generator.
++# It demonstrates how one might use RSpec to specify the controller code that
++# was generated by Rails when you ran the scaffold generator.
++#
++# It assumes that the implementation code is generated by the rails scaffold
++# generator.  If you are using any extension libraries to generate different
++# controller code, this generated spec may or may not pass.
++#
++# It only uses APIs available in rails and/or rspec-rails.  There are a number
++# of tools you can use to make these specs even more expressive, but we're
++# sticking to rails and rspec-rails APIs to keep things simple and stable.
++#
++# Compared to earlier versions of this generator, there is very limited use of
++# stubs and message expectations in this spec.  Stubs are only used when there
++# is no simpler way to get a handle on the object needed for the example.
++# Message expectations are only used when there is no simpler way to specify
++# that an instance is receiving a specific message.
++
++describe NotesController do
++
++  # This should return the minimal set of attributes required to create a valid
++  # Note. As you add validations to Note, be sure to
++  # update the return value of this method accordingly.
++  def valid_attributes
++    {
++      title: "The first note",
++      body: "Contain some text"
++    }
++  end
++
++  describe "GET index" do
++    it "assigns all notes as @notes" do
++      note = Note.create! valid_attributes
++      get :index
++      assigns(:notes).should eq([note])
++    end
++  end
++
++  describe "GET show" do
++    it "assigns the requested note as @note" do
++      note = Note.create! valid_attributes
++      get :show, :id => note.id.to_s
++      assigns(:note).should eq(note)
++    end
++  end
++
++  describe "GET new" do
++    it "assigns a new note as @note" do
++      get :new
++      assigns(:note).should be_a_new(Note)
++    end
++  end
++
++  describe "GET edit" do
++    it "assigns the requested note as @note" do
++      note = Note.create! valid_attributes
++      get :edit, :id => note.id.to_s
++      assigns(:note).should eq(note)
++    end
++  end
++
++  describe "POST create" do
++    describe "with valid params" do
++      it "creates a new Note" do
++        expect {
++          post :create, :note => valid_attributes
++        }.to change(Note, :count).by(1)
++      end
++
++      it "assigns a newly created note as @note" do
++        post :create, :note => valid_attributes
++        assigns(:note).should be_a(Note)
++        assigns(:note).should be_persisted
++      end
++
++      it "redirects to the created note" do
++        post :create, :note => valid_attributes
++        response.should redirect_to(Note.last)
++      end
++    end
++
++    describe "with invalid params" do
++      it "assigns a newly created but unsaved note as @note" do
++        # Trigger the behavior that occurs when invalid params are submitted
++        Note.any_instance.stub(:save).and_return(false)
++        post :create, :note => {}
++        assigns(:note).should be_a_new(Note)
++      end
++
++      it "re-renders the 'new' template" do
++        # Trigger the behavior that occurs when invalid params are submitted
++        Note.any_instance.stub(:save).and_return(false)
++        post :create, :note => {}
++        response.should render_template("new")
++      end
++    end
++  end
++
++  describe "PUT update" do
++    describe "with valid params" do
++      it "updates the requested note" do
++        note = Note.create! valid_attributes
++        # Assuming there are no other notes in the database, this
++        # specifies that the Note created on the previous line
++        # receives the :update_attributes message with whatever params are
++        # submitted in the request.
++        Note.any_instance.should_receive(:update_attributes).with({'these' => 'params'})
++        put :update, :id => note.id, :note => {'these' => 'params'}
++      end
++
++      it "assigns the requested note as @note" do
++        note = Note.create! valid_attributes
++        put :update, :id => note.id, :note => valid_attributes
++        assigns(:note).should eq(note)
++      end
++
++      it "redirects to the note" do
++        note = Note.create! valid_attributes
++        put :update, :id => note.id, :note => valid_attributes
++        response.should redirect_to(note)
++      end
++    end
++
++    describe "with invalid params" do
++      it "assigns the note as @note" do
++        note = Note.create! valid_attributes
++        # Trigger the behavior that occurs when invalid params are submitted
++        Note.any_instance.stub(:save).and_return(false)
++        put :update, :id => note.id.to_s, :note => {}
++        assigns(:note).should eq(note)
++      end
++
++      it "re-renders the 'edit' template" do
++        note = Note.create! valid_attributes
++        # Trigger the behavior that occurs when invalid params are submitted
++        Note.any_instance.stub(:save).and_return(false)
++        put :update, :id => note.id.to_s, :note => {}
++        response.should render_template("edit")
++      end
++    end
++  end
++
++  describe "DELETE destroy" do
++    it "destroys the requested note" do
++      note = Note.create! valid_attributes
++      expect {
++        delete :destroy, :id => note.id.to_s
++      }.to change(Note, :count).by(-1)
++    end
++
++    it "redirects to the notes list" do
++      note = Note.create! valid_attributes
++      delete :destroy, :id => note.id.to_s
++      response.should redirect_to(notes_url)
++    end
++  end
++
++end
+diff --git spec/controllers/statuses_controller_spec.rb spec/controllers/statuses_controller_spec.rb
+new file mode 100644
+index 0000000..20f3a88
+--- /dev/null
++++ spec/controllers/statuses_controller_spec.rb
+@@ -0,0 +1,157 @@
++require 'spec_helper'
++
++# This spec was generated by rspec-rails when you ran the scaffold generator.
++# It demonstrates how one might use RSpec to specify the controller code that
++# was generated by Rails when you ran the scaffold generator.
++#
++# It assumes that the implementation code is generated by the rails scaffold
++# generator.  If you are using any extension libraries to generate different
++# controller code, this generated spec may or may not pass.
++#
++# It only uses APIs available in rails and/or rspec-rails.  There are a number
++# of tools you can use to make these specs even more expressive, but we're
++# sticking to rails and rspec-rails APIs to keep things simple and stable.
++#
++# Compared to earlier versions of this generator, there is very limited use of
++# stubs and message expectations in this spec.  Stubs are only used when there
++# is no simpler way to get a handle on the object needed for the example.
++# Message expectations are only used when there is no simpler way to specify
++# that an instance is receiving a specific message.
++
++describe StatusesController do
++
++  # This should return the minimal set of attributes required to create a valid
++  # Status. As you add validations to Status, be sure to
++  # update the return value of this method accordingly.
++  def valid_attributes
++    { name: "New", description: "Just opened" }
++  end
++
++  describe "GET index" do
++    it "assigns all statuses as @statuses" do
++      status = Status.create! valid_attributes
++      get :index
++      assigns(:statuses).should eq([status])
++    end
++  end
++
++  describe "GET show" do
++    it "assigns the requested status as @status" do
++      status = Status.create! valid_attributes
++      get :show, :id => status.id.to_s
++      assigns(:status).should eq(status)
++    end
++  end
++
++  describe "GET new" do
++    it "assigns a new status as @status" do
++      get :new
++      assigns(:status).should be_a_new(Status)
++    end
++  end
++
++  describe "GET edit" do
++    it "assigns the requested status as @status" do
++      status = Status.create! valid_attributes
++      get :edit, :id => status.id.to_s
++      assigns(:status).should eq(status)
++    end
++  end
++
++  describe "POST create" do
++    describe "with valid params" do
++      it "creates a new Status" do
++        expect {
++          post :create, :status => valid_attributes
++        }.to change(Status, :count).by(1)
++      end
++
++      it "assigns a newly created status as @status" do
++        post :create, :status => valid_attributes
++        assigns(:status).should be_a(Status)
++        assigns(:status).should be_persisted
++      end
++
++      it "redirects to the created status" do
++        post :create, :status => valid_attributes
++        response.should redirect_to(Status.last)
++      end
++    end
++
++    describe "with invalid params" do
++      it "assigns a newly created but unsaved status as @status" do
++        # Trigger the behavior that occurs when invalid params are submitted
++        Status.any_instance.stub(:save).and_return(false)
++        post :create, :status => {}
++        assigns(:status).should be_a_new(Status)
++      end
++
++      it "re-renders the 'new' template" do
++        # Trigger the behavior that occurs when invalid params are submitted
++        Status.any_instance.stub(:save).and_return(false)
++        post :create, :status => {}
++        response.should render_template("new")
++      end
++    end
++  end
++
++  describe "PUT update" do
++    describe "with valid params" do
++      it "updates the requested status" do
++        status = Status.create! valid_attributes
++        # Assuming there are no other statuses in the database, this
++        # specifies that the Status created on the previous line
++        # receives the :update_attributes message with whatever params are
++        # submitted in the request.
++        Status.any_instance.should_receive(:update_attributes).with({'these' => 'params'})
++        put :update, :id => status.id, :status => {'these' => 'params'}
++      end
++
++      it "assigns the requested status as @status" do
++        status = Status.create! valid_attributes
++        put :update, :id => status.id, :status => valid_attributes
++        assigns(:status).should eq(status)
++      end
++
++      it "redirects to the status" do
++        status = Status.create! valid_attributes
++        put :update, :id => status.id, :status => valid_attributes
++        response.should redirect_to(status)
++      end
++    end
++
++    describe "with invalid params" do
++      it "assigns the status as @status" do
++        status = Status.create! valid_attributes
++        # Trigger the behavior that occurs when invalid params are submitted
++        Status.any_instance.stub(:save).and_return(false)
++        put :update, :id => status.id.to_s, :status => {}
++        assigns(:status).should eq(status)
++      end
++
++      it "re-renders the 'edit' template" do
++        status = Status.create! valid_attributes
++        # Trigger the behavior that occurs when invalid params are submitted
++        Status.any_instance.stub(:save).and_return(false)
++        put :update, :id => status.id.to_s, :status => {}
++        response.should render_template("edit")
++      end
++    end
++  end
++
++  describe "DELETE destroy" do
++    it "destroys the requested status" do
++      status = Status.create! valid_attributes
++      expect {
++        delete :destroy, :id => status.id.to_s
++      }.to change(Status, :count).by(-1)
++    end
++
++    it "redirects to the statuses list" do
++      status = Status.create! valid_attributes
++      delete :destroy, :id => status.id.to_s
++      response.should redirect_to(statuses_url)
++    end
++  end
++
++end
+diff --git spec/controllers/tickets_controller_spec.rb spec/controllers/tickets_controller_spec.rb
+new file mode 100644
+index 0000000..f4bb6fd
+--- /dev/null
++++ spec/controllers/tickets_controller_spec.rb
+@@ -0,0 +1,165 @@
++require 'spec_helper'
++
++# This spec was generated by rspec-rails when you ran the scaffold generator.
++# It demonstrates how one might use RSpec to specify the controller code that
++# was generated by Rails when you ran the scaffold generator.
++#
++# It assumes that the implementation code is generated by the rails scaffold
++# generator.  If you are using any extension libraries to generate different
++# controller code, this generated spec may or may not pass.
++#
++# It only uses APIs available in rails and/or rspec-rails.  There are a number
++# of tools you can use to make these specs even more expressive, but we're
++# sticking to rails and rspec-rails APIs to keep things simple and stable.
++#
++# Compared to earlier versions of this generator, there is very limited use of
++# stubs and message expectations in this spec.  Stubs are only used when there
++# is no simpler way to get a handle on the object needed for the example.
++# Message expectations are only used when there is no simpler way to specify
++# that an instance is receiving a specific message.
++
++describe TicketsController do
++
++  # This should return the minimal set of attributes required to create a valid
++  # Ticket. As you add validations to Ticket, be sure to
++  # update the return value of this method accordingly.
++  def valid_attributes
++   status = stub_model(Status,
++      name: "New",
++      description: "Just opened"
++    )
++   {
++      name: "Breizhcamp",
++      description: "Prepare a demo application",
++      status: mock_model("Status")
++    }
++  end
++
++  describe "GET index" do
++    it "assigns all tickets as @tickets" do
++      ticket = Ticket.create! valid_attributes
++      get :index
++      assigns(:tickets).should eq([ticket])
++    end
++  end
++
++  describe "GET show" do
++    it "assigns the requested ticket as @ticket" do
++      ticket = Ticket.create! valid_attributes
++      get :show, :id => ticket.id.to_s
++      assigns(:ticket).should eq(ticket)
++    end
++  end
++
++  describe "GET new" do
++    it "assigns a new ticket as @ticket" do
++      get :new
++      assigns(:ticket).should be_a_new(Ticket)
++    end
++  end
++
++  describe "GET edit" do
++    it "assigns the requested ticket as @ticket" do
++      ticket = Ticket.create! valid_attributes
++      get :edit, :id => ticket.id.to_s
++      assigns(:ticket).should eq(ticket)
++    end
++  end
++
++  describe "POST create" do
++    describe "with valid params" do
++      it "creates a new Ticket" do
++        expect {
++          post :create, :ticket => valid_attributes
++        }.to change(Ticket, :count).by(1)
++      end
++
++      it "assigns a newly created ticket as @ticket" do
++        post :create, :ticket => valid_attributes
++        assigns(:ticket).should be_a(Ticket)
++        assigns(:ticket).should be_persisted
++      end
++
++      it "redirects to the created ticket" do
++        post :create, :ticket => valid_attributes
++        response.should redirect_to(Ticket.last)
++      end
++    end
++
++    describe "with invalid params" do
++      it "assigns a newly created but unsaved ticket as @ticket" do
++        # Trigger the behavior that occurs when invalid params are submitted
++        Ticket.any_instance.stub(:save).and_return(false)
++        post :create, :ticket => {}
++        assigns(:ticket).should be_a_new(Ticket)
++      end
++
++      it "re-renders the 'new' template" do
++        # Trigger the behavior that occurs when invalid params are submitted
++        Ticket.any_instance.stub(:save).and_return(false)
++        post :create, :ticket => {}
++        response.should render_template("new")
++      end
++    end
++  end
++
++  describe "PUT update" do
++    describe "with valid params" do
++      it "updates the requested ticket" do
++        ticket = Ticket.create! valid_attributes
++        # Assuming there are no other tickets in the database, this
++        # specifies that the Ticket created on the previous line
++        # receives the :update_attributes message with whatever params are
++        # submitted in the request.
++        Ticket.any_instance.should_receive(:update_attributes).with({'these' => 'params'})
++        put :update, :id => ticket.id, :ticket => {'these' => 'params'}
++      end
++
++      it "assigns the requested ticket as @ticket" do
++        ticket = Ticket.create! valid_attributes
++        put :update, :id => ticket.id, :ticket => valid_attributes
++        assigns(:ticket).should eq(ticket)
++      end
++
++      it "redirects to the ticket" do
++        ticket = Ticket.create! valid_attributes
++        put :update, :id => ticket.id, :ticket => valid_attributes
++        response.should redirect_to(ticket)
++      end
++    end
++
++    describe "with invalid params" do
++      it "assigns the ticket as @ticket" do
++        ticket = Ticket.create! valid_attributes
++        # Trigger the behavior that occurs when invalid params are submitted
++        Ticket.any_instance.stub(:save).and_return(false)
++        put :update, :id => ticket.id.to_s, :ticket => {}
++        assigns(:ticket).should eq(ticket)
++      end
++
++      it "re-renders the 'edit' template" do
++        ticket = Ticket.create! valid_attributes
++        # Trigger the behavior that occurs when invalid params are submitted
++        Ticket.any_instance.stub(:save).and_return(false)
++        put :update, :id => ticket.id.to_s, :ticket => {}
++        response.should render_template("edit")
++      end
++    end
++  end
++
++  describe "DELETE destroy" do
++    it "destroys the requested ticket" do
++      ticket = Ticket.create! valid_attributes
++      expect {
++        delete :destroy, :id => ticket.id.to_s
++      }.to change(Ticket, :count).by(-1)
++    end
++
++    it "redirects to the tickets list" do
++      ticket = Ticket.create! valid_attributes
++      delete :destroy, :id => ticket.id.to_s
++      response.should redirect_to(tickets_url)
++    end
++  end
++
++end
+diff --git spec/fixtures/notes.yml spec/fixtures/notes.yml
+new file mode 100644
+index 0000000..7b8b6c3
+--- /dev/null
++++ spec/fixtures/notes.yml
+@@ -0,0 +1,13 @@
++# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
++
++# This model initially had no columns defined.  If you add columns to the
++# model remove the '{}' from the fixture names and add the columns immediately
++# below each fixture, per the syntax in the comments below
++#
++#note1:
++#  title: The first note
++#  body: Contain some text
++#
++#note2:
++#  title: The second note
++#  body: Contain another text
+diff --git spec/fixtures/statuses.yml spec/fixtures/statuses.yml
+new file mode 100644
+index 0000000..f1005d0
+--- /dev/null
++++ spec/fixtures/statuses.yml
+@@ -0,0 +1,13 @@
++# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
++
++New:
++  name: New
++  description: Just opened
++
++Open:
++  name: Open
++  description: Acknowledged
++
++Close:
++  name: Close
++  description: Realy need a description ?
+diff --git spec/fixtures/tickets.yml spec/fixtures/tickets.yml
+new file mode 100644
+index 0000000..fb64f70
+--- /dev/null
++++ spec/fixtures/tickets.yml
+@@ -0,0 +1,11 @@
++# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
++
++Breizhcamp:
++  name: Breizhcamp
++  description: Prepare a demo application
++  status: New
++
++NoSQL:
++  name: NoSQL
++  description: Read some doc about NoSQL DB :)
++  status: Open
+diff --git spec/helpers/notes_helper_spec.rb spec/helpers/notes_helper_spec.rb
+new file mode 100644
+index 0000000..7642130
+--- /dev/null
++++ spec/helpers/notes_helper_spec.rb
+@@ -0,0 +1,15 @@
++require 'spec_helper'
++
++# Specs in this file have access to a helper object that includes
++# the NotesHelper. For example:
++#
++# describe NotesHelper do
++#   describe "string concat" do
++#     it "concats two strings with spaces" do
++#       helper.concat_strings("this","that").should == "this that"
++#     end
++#   end
++# end
++describe NotesHelper do
++  #pending "add some examples to (or delete) #{__FILE__}"
++end
+diff --git spec/helpers/statuses_helper_spec.rb spec/helpers/statuses_helper_spec.rb
+new file mode 100644
+index 0000000..f9d4185
+--- /dev/null
++++ spec/helpers/statuses_helper_spec.rb
+@@ -0,0 +1,15 @@
++require 'spec_helper'
++
++# Specs in this file have access to a helper object that includes
++# the StatusesHelper. For example:
++#
++# describe StatusesHelper do
++#   describe "string concat" do
++#     it "concats two strings with spaces" do
++#       helper.concat_strings("this","that").should == "this that"
++#     end
++#   end
++# end
++describe StatusesHelper do
++  #pending "add some examples to (or delete) #{__FILE__}"
++end
+diff --git spec/helpers/tickets_helper_spec.rb spec/helpers/tickets_helper_spec.rb
+new file mode 100644
+index 0000000..49402ed
+--- /dev/null
++++ spec/helpers/tickets_helper_spec.rb
+@@ -0,0 +1,15 @@
++require 'spec_helper'
++
++# Specs in this file have access to a helper object that includes
++# the TicketsHelper. For example:
++#
++# describe TicketsHelper do
++#   describe "string concat" do
++#     it "concats two strings with spaces" do
++#       helper.concat_strings("this","that").should == "this that"
++#     end
++#   end
++# end
++describe TicketsHelper do
++  #pending "add some examples to (or delete) #{__FILE__}"
++end
+diff --git spec/models/note_spec.rb spec/models/note_spec.rb
+new file mode 100644
+index 0000000..5592239
+--- /dev/null
++++ spec/models/note_spec.rb
+@@ -0,0 +1,21 @@
++require 'spec_helper'
++
++describe Note do
++  before(:each) do
++    @note = Note.new(name: "The first note", description: "Contain some text")
++  end
++  
++  it "should be valid and saved" do
++    @note.should be_valid
++    @note.save
++    @note.id.to_s.to_i.should be_integer
++  end
++  
++  it "should be modified" do
++    @note.name = "The second note"
++    @note.description = "Contain another text"
++    
++    @note.name.should == "The second note"
++    @note.description.should == "Contain another text"
++  end
++end
+diff --git spec/models/status_spec.rb spec/models/status_spec.rb
+new file mode 100644
+index 0000000..f4afae3
+--- /dev/null
++++ spec/models/status_spec.rb
+@@ -0,0 +1,21 @@
++require 'spec_helper'
++
++describe Status do
++  before(:each) do
++    @status = Status.new(name: "New", description: "Just opened")
++  end
++  
++  it "should be valid and saved" do
++    @status.should be_valid
++    @status.save
++    @status.id.should be_integer
++  end
++  
++  it "should be modified" do
++    @status.name = "Open"
++    @status.description = "Acknowledged"
++    
++    @status.name.should == "Open"
++    @status.description.should == "Acknowledged"
++  end
++end
+diff --git spec/models/ticket_spec.rb spec/models/ticket_spec.rb
+new file mode 100644
+index 0000000..7601fc7
+--- /dev/null
++++ spec/models/ticket_spec.rb
+@@ -0,0 +1,23 @@
++require 'spec_helper'
++
++describe Ticket do
++  before(:each) do
++    @status = Status.new(name: "New", description: "Just opened")
++    @status.save
++    @ticket = Ticket.new(name: "Breizhcamp", description: "Prepare a demo application", status_id: @status.id)
++  end
++  
++  it "should be valid and saved" do
++    @ticket.should be_valid
++    @ticket.save
++    @ticket.id.should be_integer
++  end
++  
++  it "should be modified" do
++    @ticket.name = "NoSQL"
++    @ticket.description = "Read some doc about NoSQL DB :)"
++    
++    @ticket.name.should == "NoSQL"
++    @ticket.description.should == "Read some doc about NoSQL DB :)"
++  end
++end
+diff --git spec/requests/notes_spec.rb spec/requests/notes_spec.rb
+new file mode 100644
+index 0000000..6c2512a
+--- /dev/null
++++ spec/requests/notes_spec.rb
+@@ -0,0 +1,11 @@
++require 'spec_helper'
++
++describe "Notes" do
++  describe "GET /notes" do
++    it "works! (now write some real specs)" do
++      # Run the generator again with the --webrat flag if you want to use webrat methods/matchers
++      get notes_path
++      response.status.should be(200)
++    end
++  end
++end
+diff --git spec/requests/statuses_spec.rb spec/requests/statuses_spec.rb
+new file mode 100644
+index 0000000..18cc59c
+--- /dev/null
++++ spec/requests/statuses_spec.rb
+@@ -0,0 +1,11 @@
++require 'spec_helper'
++
++describe "Statuses" do
++  describe "GET /statuses" do
++    it "works! (now write some real specs)" do
++      # Run the generator again with the --webrat flag if you want to use webrat methods/matchers
++      get statuses_path
++      response.status.should be(200)
++    end
++  end
++end
+diff --git spec/requests/tickets_spec.rb spec/requests/tickets_spec.rb
+new file mode 100644
+index 0000000..741e760
+--- /dev/null
++++ spec/requests/tickets_spec.rb
+@@ -0,0 +1,11 @@
++require 'spec_helper'
++
++describe "Tickets" do
++  describe "GET /tickets" do
++    it "works! (now write some real specs)" do
++      # Run the generator again with the --webrat flag if you want to use webrat methods/matchers
++      get tickets_path
++      response.status.should be(200)
++    end
++  end
++end
+diff --git spec/routing/notes_routing_spec.rb.bak spec/routing/notes_routing_spec.rb.bak
+new file mode 100644
+index 0000000..63a84d7
+--- /dev/null
++++ spec/routing/notes_routing_spec.rb.bak
+@@ -0,0 +1,35 @@
++require "spec_helper"
++
++describe NotesController do
++  describe "routing" do
++
++    it "routes to #index" do
++      get("/notes").should route_to("notes#index")
++    end
++
++    it "routes to #new" do
++      get("/notes/new").should route_to("notes#new")
++    end
++
++    it "routes to #show" do
++      get("/notes/1").should route_to("notes#show", :id => "1")
++    end
++
++    it "routes to #edit" do
++      get("/notes/1/edit").should route_to("notes#edit", :id => "1")
++    end
++
++    it "routes to #create" do
++      post("/notes").should route_to("notes#create")
++    end
++
++    it "routes to #update" do
++      put("/notes/1").should route_to("notes#update", :id => "1")
++    end
++
++    it "routes to #destroy" do
++      delete("/notes/1").should route_to("notes#destroy", :id => "1")
++    end
++
++  end
++end
+diff --git spec/routing/statuses_routing_spec.rb.bak spec/routing/statuses_routing_spec.rb.bak
+new file mode 100644
+index 0000000..996efa0
+--- /dev/null
++++ spec/routing/statuses_routing_spec.rb.bak
+@@ -0,0 +1,35 @@
++require "spec_helper"
++
++describe StatusesController do
++  describe "routing" do
++
++    it "routes to #index" do
++      get("/statuses").should route_to("statuses#index")
++    end
++
++    it "routes to #new" do
++      get("/statuses/new").should route_to("statuses#new")
++    end
++
++    it "routes to #show" do
++      get("/statuses/1").should route_to("statuses#show", :id => "1")
++    end
++
++    it "routes to #edit" do
++      get("/statuses/1/edit").should route_to("statuses#edit", :id => "1")
++    end
++
++    it "routes to #create" do
++      post("/statuses").should route_to("statuses#create")
++    end
++
++    it "routes to #update" do
++      put("/statuses/1").should route_to("statuses#update", :id => "1")
++    end
++
++    it "routes to #destroy" do
++      delete("/statuses/1").should route_to("statuses#destroy", :id => "1")
++    end
++
++  end
++end
+diff --git spec/routing/tickets_routing_spec.rb.bak spec/routing/tickets_routing_spec.rb.bak
+new file mode 100644
+index 0000000..6750c14
+--- /dev/null
++++ spec/routing/tickets_routing_spec.rb.bak
+@@ -0,0 +1,35 @@
++require "spec_helper"
++
++describe TicketsController do
++  describe "routing" do
++
++    it "routes to #index" do
++      get("/tickets").should route_to("tickets#index")
++    end
++
++    it "routes to #new" do
++      get("/tickets/new").should route_to("tickets#new")
++    end
++
++    it "routes to #show" do
++      get("/tickets/1").should route_to("tickets#show", :id => "1")
++    end
++
++    it "routes to #edit" do
++      get("/tickets/1/edit").should route_to("tickets#edit", :id => "1")
++    end
++
++    it "routes to #create" do
++      post("/tickets").should route_to("tickets#create")
++    end
++
++    it "routes to #update" do
++      put("/tickets/1").should route_to("tickets#update", :id => "1")
++    end
++
++    it "routes to #destroy" do
++      delete("/tickets/1").should route_to("tickets#destroy", :id => "1")
++    end
++
++  end
++end
+diff --git spec/spec_helper.rb spec/spec_helper.rb
+new file mode 100644
+index 0000000..e7e707b
+--- /dev/null
++++ spec/spec_helper.rb
+@@ -0,0 +1,35 @@
++# This file is copied to spec/ when you run 'rails generate rspec:install'
++ENV["RAILS_ENV"] ||= 'test'
++require File.expand_path("../../config/environment", __FILE__)
++require 'rspec/rails'
++
++# Requires supporting ruby files with custom matchers and macros, etc,
++# in spec/support/ and its subdirectories.
++Dir[Rails.root.join("spec/support/**/*.rb")].each {|f| require f}
++
++RSpec.configure do |config|
++  # == Mock Framework
++  #
++  # If you prefer to use mocha, flexmock or RR, uncomment the appropriate line:
++  #
++  # config.mock_with :mocha
++  # config.mock_with :flexmock
++  # config.mock_with :rr
++  config.mock_with :rspec
++
++  # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
++  config.fixture_path = "#{::Rails.root}/spec/fixtures"
++
++  # If you're not using ActiveRecord, or you'd prefer not to run each of your
++  # examples within a transaction, remove the following line or assign false
++  # instead of true.
++  config.use_transactional_fixtures = true
++  
++  config.after(:each) do
++    MongoMapper.database.collections.each do |collection|
++      unless collection.name.match(/^system\./)
++        collection.remove
++      end
++    end
++  end
++end
+diff --git spec/views/notes/edit.html.erb_spec.rb.bak spec/views/notes/edit.html.erb_spec.rb.bak
+new file mode 100644
+index 0000000..eb3bc8e
+--- /dev/null
++++ spec/views/notes/edit.html.erb_spec.rb.bak
+@@ -0,0 +1,15 @@
++require 'spec_helper'
++
++describe "notes/edit.html.erb" do
++  before(:each) do
++    @note = assign(:note, stub_model(Note))
++  end
++
++  it "renders the edit note form" do
++    render
++
++    # Run the generator again with the --webrat flag if you want to use webrat matchers
++    assert_select "form", :action => notes_path(@note), :method => "post" do
++    end
++  end
++end
+diff --git spec/views/notes/index.html.erb_spec.rb.bak spec/views/notes/index.html.erb_spec.rb.bak
+new file mode 100644
+index 0000000..4e47a2e
+--- /dev/null
++++ spec/views/notes/index.html.erb_spec.rb.bak
+@@ -0,0 +1,14 @@
++require 'spec_helper'
++
++describe "notes/index.html.erb" do
++  before(:each) do
++    assign(:notes, [
++      stub_model(Note),
++      stub_model(Note)
++    ])
++  end
++
++  it "renders a list of notes" do
++    render
++  end
++end
+diff --git spec/views/notes/new.html.erb_spec.rb.bak spec/views/notes/new.html.erb_spec.rb.bak
+new file mode 100644
+index 0000000..f56aecd
+--- /dev/null
++++ spec/views/notes/new.html.erb_spec.rb.bak
+@@ -0,0 +1,15 @@
++require 'spec_helper'
++
++describe "notes/new.html.erb" do
++  before(:each) do
++    assign(:note, stub_model(Note).as_new_record)
++  end
++
++  it "renders new note form" do
++    render
++
++    # Run the generator again with the --webrat flag if you want to use webrat matchers
++    assert_select "form", :action => notes_path, :method => "post" do
++    end
++  end
++end
+diff --git spec/views/notes/show.html.erb_spec.rb.bak spec/views/notes/show.html.erb_spec.rb.bak
+new file mode 100644
+index 0000000..d5d9abc
+--- /dev/null
++++ spec/views/notes/show.html.erb_spec.rb.bak
+@@ -0,0 +1,11 @@
++require 'spec_helper'
++
++describe "notes/show.html.erb" do
++  before(:each) do
++    @note = assign(:note, stub_model(Note))
++  end
++
++  it "renders attributes in <p>" do
++    render
++  end
++end
+diff --git spec/views/statuses/edit.html.erb_spec.rb.bak spec/views/statuses/edit.html.erb_spec.rb.bak
+new file mode 100644
+index 0000000..46a9fe8
+--- /dev/null
++++ spec/views/statuses/edit.html.erb_spec.rb.bak
+@@ -0,0 +1,20 @@
++require 'spec_helper'
++
++describe "statuses/edit.html.erb" do
++  before(:each) do
++    @status = assign(:status, stub_model(Status,
++      :name => "MyString",
++      :description => "MyText"
++    ))
++  end
++
++  it "renders the edit status form" do
++    render
++
++    # Run the generator again with the --webrat flag if you want to use webrat matchers
++    assert_select "form", :action => statuses_path(@status), :method => "post" do
++      assert_select "input#status_name", :name => "status[name]"
++      assert_select "textarea#status_description", :name => "status[description]"
++    end
++  end
++end
+diff --git spec/views/statuses/index.html.erb_spec.rb.bak spec/views/statuses/index.html.erb_spec.rb.bak
+new file mode 100644
+index 0000000..6036e07
+--- /dev/null
++++ spec/views/statuses/index.html.erb_spec.rb.bak
+@@ -0,0 +1,24 @@
++require 'spec_helper'
++
++describe "statuses/index.html.erb" do
++  before(:each) do
++    assign(:statuses, [
++      stub_model(Status,
++        :name => "Name",
++        :description => "MyText"
++      ),
++      stub_model(Status,
++        :name => "Name",
++        :description => "MyText"
++      )
++    ])
++  end
++
++  it "renders a list of statuses" do
++    render
++    # Run the generator again with the --webrat flag if you want to use webrat matchers
++    assert_select "tr>td", :text => "Name".to_s, :count => 2
++    # Run the generator again with the --webrat flag if you want to use webrat matchers
++    assert_select "tr>td", :text => "MyText".to_s, :count => 2
++  end
++end
+diff --git spec/views/statuses/new.html.erb_spec.rb.bak spec/views/statuses/new.html.erb_spec.rb.bak
+new file mode 100644
+index 0000000..68a9e22
+--- /dev/null
++++ spec/views/statuses/new.html.erb_spec.rb.bak
+@@ -0,0 +1,20 @@
++require 'spec_helper'
++
++describe "statuses/new.html.erb" do
++  before(:each) do
++    assign(:status, stub_model(Status,
++      :name => "MyString",
++      :description => "MyText"
++    ).as_new_record)
++  end
++
++  it "renders new status form" do
++    render
++
++    # Run the generator again with the --webrat flag if you want to use webrat matchers
++    assert_select "form", :action => statuses_path, :method => "post" do
++      assert_select "input#status_name", :name => "status[name]"
++      assert_select "textarea#status_description", :name => "status[description]"
++    end
++  end
++end
+diff --git spec/views/statuses/show.html.erb_spec.rb.bak spec/views/statuses/show.html.erb_spec.rb.bak
+new file mode 100644
+index 0000000..80572da
+--- /dev/null
++++ spec/views/statuses/show.html.erb_spec.rb.bak
+@@ -0,0 +1,18 @@
++require 'spec_helper'
++
++describe "statuses/show.html.erb" do
++  before(:each) do
++    @status = assign(:status, stub_model(Status,
++      :name => "Name",
++      :description => "MyText"
++    ))
++  end
++
++  it "renders attributes in <p>" do
++    render
++    # Run the generator again with the --webrat flag if you want to use webrat matchers
++    rendered.should match(/Name/)
++    # Run the generator again with the --webrat flag if you want to use webrat matchers
++    rendered.should match(/MyText/)
++  end
++end
+diff --git spec/views/tickets/edit.html.erb_spec.rb.bak spec/views/tickets/edit.html.erb_spec.rb.bak
+new file mode 100644
+index 0000000..d6f1d94
+--- /dev/null
++++ spec/views/tickets/edit.html.erb_spec.rb.bak
+@@ -0,0 +1,20 @@
++require 'spec_helper'
++
++describe "tickets/edit.html.erb" do
++  before(:each) do
++    @ticket = assign(:ticket, stub_model(Ticket,
++      :name => "MyString",
++      :description => "MyText"
++    ))
++  end
++
++  it "renders the edit ticket form" do
++    render
++
++    # Run the generator again with the --webrat flag if you want to use webrat matchers
++    assert_select "form", :action => tickets_path(@ticket), :method => "post" do
++      assert_select "input#ticket_name", :name => "ticket[name]"
++      assert_select "textarea#ticket_description", :name => "ticket[description]"
++    end
++  end
++end
+diff --git spec/views/tickets/index.html.erb_spec.rb.bak spec/views/tickets/index.html.erb_spec.rb.bak
+new file mode 100644
+index 0000000..3c8c0f6
+--- /dev/null
++++ spec/views/tickets/index.html.erb_spec.rb.bak
+@@ -0,0 +1,24 @@
++require 'spec_helper'
++
++describe "tickets/index.html.erb" do
++  before(:each) do
++    assign(:tickets, [
++      stub_model(Ticket,
++        :name => "Name",
++        :description => "MyText"
++      ),
++      stub_model(Ticket,
++        :name => "Name",
++        :description => "MyText"
++      )
++    ])
++  end
++
++  it "renders a list of tickets" do
++    render
++    # Run the generator again with the --webrat flag if you want to use webrat matchers
++    assert_select "tr>td", :text => "Name".to_s, :count => 2
++    # Run the generator again with the --webrat flag if you want to use webrat matchers
++    assert_select "tr>td", :text => "MyText".to_s, :count => 2
++  end
++end
+diff --git spec/views/tickets/new.html.erb_spec.rb.bak spec/views/tickets/new.html.erb_spec.rb.bak
+new file mode 100644
+index 0000000..746afa0
+--- /dev/null
++++ spec/views/tickets/new.html.erb_spec.rb.bak
+@@ -0,0 +1,20 @@
++require 'spec_helper'
++
++describe "tickets/new.html.erb" do
++  before(:each) do
++    assign(:ticket, stub_model(Ticket,
++      :name => "MyString",
++      :description => "MyText"
++    ).as_new_record)
++  end
++
++  it "renders new ticket form" do
++    render
++
++    # Run the generator again with the --webrat flag if you want to use webrat matchers
++    assert_select "form", :action => tickets_path, :method => "post" do
++      assert_select "input#ticket_name", :name => "ticket[name]"
++      assert_select "textarea#ticket_description", :name => "ticket[description]"
++    end
++  end
++end
+diff --git spec/views/tickets/show.html.erb_spec.rb.bak spec/views/tickets/show.html.erb_spec.rb.bak
+new file mode 100644
+index 0000000..b42693d
+--- /dev/null
++++ spec/views/tickets/show.html.erb_spec.rb.bak
+@@ -0,0 +1,18 @@
++require 'spec_helper'
++
++describe "tickets/show.html.erb" do
++  before(:each) do
++    @ticket = assign(:ticket, stub_model(Ticket,
++      :name => "Name",
++      :description => "MyText"
++    ))
++  end
++
++  it "renders attributes in <p>" do
++    render
++    # Run the generator again with the --webrat flag if you want to use webrat matchers
++    rendered.should match(/Name/)
++    # Run the generator again with the --webrat flag if you want to use webrat matchers
++    rendered.should match(/MyText/)
++  end
++end
+diff --git test/fixtures/.gitkeep test/fixtures/.gitkeep
+deleted file mode 100644
+index e69de29..0000000
+diff --git test/functional/.gitkeep test/functional/.gitkeep
+deleted file mode 100644
+index e69de29..0000000
+diff --git test/integration/.gitkeep test/integration/.gitkeep
+deleted file mode 100644
+index e69de29..0000000
+diff --git test/performance/browsing_test.rb test/performance/browsing_test.rb
+deleted file mode 100644
+index 5d1be04..0000000
+--- test/performance/browsing_test.rb
++++ /dev/null
+@@ -1,12 +0,0 @@
+-require 'test_helper'
+-require 'rails/performance_test_help'
+-
+-class BrowsingTest < ActionDispatch::PerformanceTest
+-  # Refer to the documentation for all available options
+-  # self.profile_options = { :runs => 5, :metrics => [:wall_time, :memory]
+-  #                          :output => 'tmp/performance', :formats => [:flat] }
+-  
+-  def test_homepage
+-    get '/'
+-  end
+-end
+diff --git test/test_helper.rb test/test_helper.rb
+deleted file mode 100644
+index 8bf1192..0000000
+--- test/test_helper.rb
++++ /dev/null
+@@ -1,13 +0,0 @@
+-ENV["RAILS_ENV"] = "test"
+-require File.expand_path('../../config/environment', __FILE__)
+-require 'rails/test_help'
+-
+-class ActiveSupport::TestCase
+-  # Setup all fixtures in test/fixtures/*.(yml|csv) for all tests in alphabetical order.
+-  #
+-  # Note: You'll currently still have to declare fixtures explicitly in integration tests
+-  # -- they do not yet inherit this setting
+-  fixtures :all
+-
+-  # Add more helper methods to be used by all tests here...
+-end
+diff --git test/unit/.gitkeep test/unit/.gitkeep
+deleted file mode 100644
+index e69de29..0000000

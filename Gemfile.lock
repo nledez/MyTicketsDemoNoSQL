@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/jnicklas/capybara.git
-  revision: c3f2c44eeea8bb4d8e4af3afded4f2034810641f
+  revision: e1091daced2513a2d2ce15ae4033d9da1ced9f7e
   specs:
     capybara (1.0.0.beta1)
       mime-types (>= 1.16)
@@ -45,6 +45,7 @@ GEM
       multi_json (~> 1.0)
     addressable (2.2.6)
     ansi (1.2.5)
+    archive-tar-minitar (0.5.2)
     arel (2.1.1)
     bcrypt-ruby (2.1.4)
     bson (1.3.1)
@@ -56,6 +57,7 @@ GEM
       coffee-script-source
       execjs
     coffee-script-source (1.1.1)
+    columnize (0.3.2)
     configuration (1.2.0)
     database_cleaner (0.6.7)
     diff-lcs (1.1.2)
@@ -86,6 +88,8 @@ GEM
     launchy (0.4.0)
       configuration (>= 0.0.5)
       rake (>= 0.8.1)
+    linecache19 (0.5.12)
+      ruby_core_source (>= 0.1.4)
     mail (2.3.0)
       i18n (>= 0.4.0)
       mime-types (~> 1.16)
@@ -127,6 +131,7 @@ GEM
       thor (~> 0.14.6)
     rake (0.9.1)
     rb-fsevent (0.4.0)
+    redis (2.2.0)
     rspec (2.6.0)
       rspec-core (~> 2.6.0)
       rspec-expectations (~> 2.6.0)
@@ -140,6 +145,16 @@ GEM
       activesupport (~> 3.0)
       railties (~> 3.0)
       rspec (~> 2.6.0)
+    ruby-debug-base19 (0.11.25)
+      columnize (>= 0.3.1)
+      linecache19 (>= 0.5.11)
+      ruby_core_source (>= 0.1.4)
+    ruby-debug19 (0.11.6)
+      columnize (>= 0.3.1)
+      linecache19 (>= 0.5.11)
+      ruby-debug-base19 (>= 0.11.19)
+    ruby_core_source (0.1.5)
+      archive-tar-minitar (>= 0.5.2)
     rubyzip (0.9.4)
     sass (3.1.2)
     selenium-webdriver (0.2.1)
@@ -181,7 +196,9 @@ DEPENDENCIES
   mongo_mapper
   rails (= 3.1.0.rc1)
   rb-fsevent
+  redis
   rspec-rails
+  ruby-debug19
   sass
   sqlite3
   turn

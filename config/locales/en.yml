@@ -2,4 +2,16 @@
 # See https://github.com/svenfuchs/rails-i18n/tree/master/rails%2Flocale for starting points.
 
 en:
-  hello: "Hello world"
+  listing_tickets: "Listing tickets"
+  status: "Status"
+  name: "Name"
+  description: "Description"
+  new_ticket: "New Ticket"
+  show: "Show"
+  edit: "Edit"
+  destroy: "Destroy"
+  unknown: "Unknown"
+  back: "Back"
+  are_you_sure: "Are you sure?"
+  editing_ticket: "Editing ticket"
+  

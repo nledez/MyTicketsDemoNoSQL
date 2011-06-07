@@ -1,10 +1,10 @@
-<h1>Listing tickets</h1>
+<h1><%= t('listing_tickets') %></h1>
 
 <table>
   <tr>
-    <th>Status</th>
-    <th>Name</th>
-    <th>Description</th>
+    <th><%= t('status') %></th>
+    <th><%= t('name') %></th>
+    <th><%= t('description') %></th>
     <th></th>
     <th></th>
     <th></th>
@@ -15,13 +15,13 @@
     <td><%= ticket.status.name %></td>
     <td><%= ticket.name %></td>
     <td><%= ticket.description %></td>
-    <td><%= link_to 'Show', ticket %></td>
-    <td><%= link_to 'Edit', edit_ticket_path(ticket) %></td>
-    <td><%= link_to 'Destroy', ticket, confirm: 'Are you sure?', method: :delete %></td>
+    <td><%= link_to t('show'), ticket %></td>
+    <td><%= link_to t('edit'), edit_ticket_path(ticket) %></td>
+    <td><%= link_to t('destroy'), ticket, confirm: t('are_you_sure'), method: :delete %></td>
   </tr>
 <% end %>
 </table>
 
 <br />
 
-<%= link_to 'New Ticket', new_ticket_path %>
+<%= link_to t('new_ticket'), new_ticket_path %>

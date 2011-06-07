@@ -1,20 +1,20 @@
 <p id="notice"><%= notice %></p>
 
 <p>
-  <b>Status:</b>
-  <%= @ticket.status.nil? ? "Unknown" : @ticket.status.name %>
+  <b><%= t('status') %>:</b>
+  <%= @ticket.status.nil? ? t('unknown') : @ticket.status.name %>
 </p>
 
 <p>
-  <b>Name:</b>
+  <b><%= t('name') %>:</b>
   <%= @ticket.name %>
 </p>
 
 <p>
-  <b>Description:</b>
+  <b><%= t('description') %>:</b>
   <%= @ticket.description %>
 </p>
 
 
-<%= link_to 'Edit', edit_ticket_path(@ticket) %> |
-<%= link_to 'Back', tickets_path %>
+<%= link_to t('edit'), edit_ticket_path(@ticket) %> |
+<%= link_to t('back'), tickets_path %>

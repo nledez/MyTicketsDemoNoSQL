@@ -12,15 +12,15 @@
   <% end %>
 
   <div class="field">
-    <%= f.label t('status') %><br />
+    <%= f.label :status %><br />
     <%= f.select :status_id, Status.all.collect { |s| [s.name, s.id]} %>
   </div>
   <div class="field">
-    <%= f.label t('name') %><br />
+    <%= f.label :name %><br />
     <%= f.text_field :name %>
   </div>
   <div class="field">
-    <%= f.label t('description') %><br />
+    <%= f.label :description %><br />
     <%= f.text_area :description %>
   </div>
   <div class="actions">

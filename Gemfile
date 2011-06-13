@@ -1,6 +1,6 @@
 source 'http://rubygems.org'
 
-gem 'rails', '3.1.0.rc1'
+gem 'rails', '3.1.0.rc4'
 
 # Bundle edge Rails instead:
 # gem 'rails',     :git => 'git://github.com/rails/rails.git'
@@ -18,6 +18,9 @@ gem 'jquery-rails'
 gem 'mongo_mapper'
 gem 'bson_ext'
 
+# Add redis
+gem 'redis'
+
 # Use unicorn as the web server
 # gem 'unicorn'
 
@@ -25,7 +28,7 @@ gem 'bson_ext'
 # gem 'capistrano'
 
 # To use debugger
-# gem 'ruby-debug19', :require => 'ruby-debug'
+gem 'ruby-debug19', :require => 'ruby-debug'
 
 group :test do
   # Pretty printed test output

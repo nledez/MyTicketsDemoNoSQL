@@ -10,5 +10,17 @@
   <%= @note.body %>
 </p>
 
+<% @note.keys.each do |key, value| %>
+<% next if ['_id', 'title', 'body'].include?(key) %>
+<p>
+  <b><%= key.capitalize %>:</b>
+  <%= @note[key] %>
+</p>
+<% end %>
+
 <%= link_to 'Edit', edit_note_path(@note) %> |
 <%= link_to 'Back', notes_path %>
+
+<pre>
+<%= @note.to_mongo.to_s.gsub(/,/, ",\n") %>
+</pre>

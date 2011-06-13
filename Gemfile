@@ -27,10 +27,10 @@ gem 'redis'
 # Deploy with Capistrano
 # gem 'capistrano'
 
-# To use debugger
-gem 'ruby-debug19', :require => 'ruby-debug'
-
 group :test do
+  # To use debugger
+  gem 'ruby-debug19', :require => 'ruby-debug'
+  
   # Pretty printed test output
   gem 'turn', :require => false
   gem 'rspec-rails'

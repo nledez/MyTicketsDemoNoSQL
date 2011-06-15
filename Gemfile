@@ -40,6 +40,8 @@ group :test do
   gem 'rspec-rails'
   gem 'rb-fsevent', :require => false if RUBY_PLATFORM =~ /darwin/i
   gem 'growl', :require => false if RUBY_PLATFORM =~ /darwin/i
+  gem 'rb-inotify', :require => false if RUBY_PLATFORM =~ /linux/i
+  gem 'libnotify', :require => false if RUBY_PLATFORM =~ /linux/i
   gem 'guard-rspec'
   gem 'guard-livereload'
   gem 'capybara', :git => 'git://github.com/jnicklas/capybara.git'

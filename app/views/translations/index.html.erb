@@ -1,8 +1,11 @@
+<p id="notice"><%= notice %></p>
 <h1>Translations</h1>
 
 <ul>
   <% @translations.keys.each do |key| %>
-    <li><%= key %>: <%= @translations[key] %></li>
+    <li><%= key %>: <%= @translations[key] %>
+      <!-- <%= link_to t('destroy'), key, confirm: t('are_you_sure'), method: :delete %> -->
+    </li>
   <% end %>
 </ul>
 

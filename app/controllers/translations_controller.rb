@@ -9,7 +9,7 @@ class TranslationsController < ApplicationController
   end
 
   def destroy
-    TRANSLATION_STORE.del(params[:key])
+    TRANSLATION_STORE.del(params[:lang] + "." + params[:chain])
     redirect_to translations_url, :notice => "Deleted translations"
   end
 end

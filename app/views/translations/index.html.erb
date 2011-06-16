@@ -4,7 +4,8 @@
 <ul>
   <% @translations.keys.each do |key| %>
     <li><%= key %>: <%= @translations[key] %>
-      <!-- <%= link_to t('destroy'), key, confirm: t('are_you_sure'), method: :delete %> -->
+      <% (lang, chain) = key.split('.') %>
+      <%= link_to t('destroy'), "translations/destroy/#{lang}/#{chain}", confirm: t('are_you_sure'), method: :destroy, key: key %>
     </li>
   <% end %>
 </ul>

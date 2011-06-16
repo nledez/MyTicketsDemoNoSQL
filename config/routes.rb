@@ -1,5 +1,6 @@
 Tickets::Application.routes.draw do
   resources :translations
+  match 'translations/destroy/:lang/:chain' => 'translations#destroy'
 
   resources :statuses
 

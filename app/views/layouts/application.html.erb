@@ -7,6 +7,11 @@
   <%= csrf_meta_tags %>
 </head>
 <body>
+  <div id="nav">
+    [ <a href="<%= tickets_path %>">Tickets</a> ]
+    [ <a href="<%= translations_path %>">Translations</a> ]
+    [ <a href="<%= notes_path %>">Notes</a> ]
+  </div>
 
 <%= yield %>
 

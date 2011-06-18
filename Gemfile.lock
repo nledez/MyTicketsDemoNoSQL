@@ -69,6 +69,7 @@ GEM
     execjs (1.1.2)
       multi_json (~> 1.0)
     ffi (1.0.9)
+    growl (1.0.3)
     guard (0.4.2)
       thor (~> 0.14.6)
     guard-livereload (0.1.11)
@@ -87,7 +88,6 @@ GEM
     launchy (0.4.0)
       configuration (>= 0.0.5)
       rake (>= 0.8.1)
-    libnotify (0.5.5)
     linecache19 (0.5.12)
       ruby_core_source (>= 0.1.4)
     mail (2.3.0)
@@ -132,8 +132,7 @@ GEM
       rdoc (~> 3.4)
       thor (~> 0.14.6)
     rake (0.9.2)
-    rb-inotify (0.8.5)
-      ffi (>= 0.5.0)
+    rb-fsevent (0.4.0)
     rdoc (3.6.1)
     redis (2.2.1)
     rspec (2.6.0)
@@ -192,15 +191,15 @@ DEPENDENCIES
   capybara!
   coffee-script
   database_cleaner
+  growl
   guard-livereload
   guard-rspec
   jquery-rails
   launchy
-  libnotify
   mongo_mapper
   pg
   rails (= 3.1.0.rc4)
-  rb-inotify
+  rb-fsevent
   redis
   rspec-rails
   ruby-debug19
